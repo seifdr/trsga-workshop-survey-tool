@@ -1,0 +1,18 @@
+@import 'bootstrap-4.0.0-alpha.6.2/bootstrap.scss';
+
+body {
+    border: 1px solid red;
+}
+
+h1 {
+    border: 1px solid blue;
+}
+
+tr.totals {
+
+    border-top: 2px solid black;
+
+    td {
+        font-weight: bold;
+    }
+}
