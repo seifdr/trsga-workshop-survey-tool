@@ -62,7 +62,12 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam vehicula tortor ut sapien placerat pellentesque. Cras consequat velit laoreet erat lacinia ultrices. Aliquam finibus tortor vitae quam venenatis, quis fringilla nisl pulvinar. Suspendisse quis tincidunt erat. Aliquam hendrerit laoreet neque, sit amet rhoncus risus molestie vel. Quisque eu nisi quis mauris finibus pretium. Cras ac laoreet nulla. Praesent in vehicula massa.</p>
+                    <h5>FY Survey Satisfaction Percentages by Planner</h5>
+                    <?php
+
+                        $wsView->survey_sat_percentages_by_planner();
+
+                    ?>
                 </div>
             </div>
         </div>

@@ -88,7 +88,7 @@ class WorkshopSurvey extends DatabaseObject
 
     public function get_survey_totals_by_FY( $type = NULL, $fy = NULL ){
         global $database;
-        
+
         if( is_null( $fy ) ){
             $fy = $this->find_current_FY()['fy_year'];
         } 
@@ -122,6 +122,47 @@ class WorkshopSurvey extends DatabaseObject
 
             $sqlLayer2 = "SELECT FirstName, LastName, ROUND( AVG( question1a ), 2 ) AS q1a_avg, ROUND( AVG( question1b ), 2 ) AS q1b_avg, ROUND( AVG( question1c ), 2 ) q1c_avg, ROUND( AVG( ( question1a + question1b + question1c ) / 3 ), 2 ) AS total_avg FROM ( ". $sqld ." ) as t2 GROUP BY rep_code";
 
+        } elseif ( $type == 'satPers' ) {
+
+           // echo $sqld;
+
+            $x = " SELECT 
+                    t2.FirstName,
+                    t2.LastName,
+                    SUM( IF( ( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ) AND t2.fiscal_qtr = 1 ), 1, 0 ) ) AS Qtr1_pass_cnt,
+                    SUM( IF( t2.fiscal_qtr = 1, 1, 0 ) ) as Qtr1_tot_cnt,
+                    
+                    SUM( IF( ( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ) AND t2.fiscal_qtr = 2 ), 1, 0 ) ) AS Qtr2_pass_cnt,
+                    SUM( IF( t2.fiscal_qtr = 2, 1, 0 ) ) as Qtr2_tot_cnt,
+                    
+                    SUM( IF( ( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ) AND t2.fiscal_qtr = 3 ), 1, 0 ) ) AS Qtr3_pass_cnt,
+                    SUM( IF( t2.fiscal_qtr = 3, 1, 0 ) ) as Qtr3_tot_cnt,
+                    
+                    SUM( IF( ( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ) AND t2.fiscal_qtr = 4 ), 1, 0 ) ) AS Qtr4_pass_cnt,
+                    SUM( IF( t2.fiscal_qtr = 4, 1, 0 ) ) as Qtr4_tot_cnt,    
+
+                    SUM( IF( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ), 1, 0 ) ) AS Tot_pass_cnt,
+                    SUM( IF( t2.fiscal_qtr IS NOT NULL, 1, 0 ) ) as Tot_cnt  
+                    
+                    FROM ( ". $sqld ." ) as t2 GROUP BY t2.code";
+
+           $y = " SELECT 
+                    FirstName,
+                    LastName,
+                    ROUND( ( ( t3.Qtr1_pass_cnt / t3.Qtr1_tot_cnt ) * 100 ), 2 ) AS Qtr1_Perc,
+
+                    ROUND( ( ( t3.Qtr2_pass_cnt / t3.Qtr2_tot_cnt ) * 100 ), 2 ) AS Qtr2_Perc,
+
+                    ROUND( ( ( t3.Qtr3_pass_cnt / t3.Qtr3_tot_cnt ) * 100 ), 2 ) AS Qtr3_Perc,
+
+                    ROUND( ( ( t3.Qtr4_pass_cnt / t3.Qtr4_tot_cnt ) * 100 ), 2 ) AS Qtr4_Perc,
+
+                    ROUND( ( ( t3.Tot_pass_cnt / t3.Tot_cnt ) * 100 ), 2 ) AS Tot_Perc
+
+                    FROM ( ". $x ." ) as t3";
+
+            $sqlLayer2 = $y;
+
         } else {
             //catch all
             $sqlLayer2    = "SELECT t.FirstName, t.LastName, t.fiscal_qtr, t.Code, COUNT( IF( t.fiscal_qtr = '1', 1, NULL) ) as Qtr1, COUNT( IF( t.fiscal_qtr = '2', 1, NULL) ) as Qtr2, COUNT( IF( t.fiscal_qtr = '3', 1, NULL) ) as Qtr3, COUNT( IF( t.fiscal_qtr = '4', 1, NULL) ) as Qtr4, COUNT( IF( ( t.fiscal_qtr = '1' OR t.fiscal_qtr = '2' OR t.fiscal_qtr = '3' OR t.fiscal_qtr = '4' ), 1, NULL ) ) as Total FROM (". $sqld .") AS t GROUP BY t.code";
@@ -131,6 +172,10 @@ class WorkshopSurvey extends DatabaseObject
 
         foreach ( $database->query( $sqlLayer2 ) as $row ) {
             array_push( $result, $row );
+        }
+
+        if( $type == 'satPers' ){
+            //look( $result );
         }
 
         return $result;

@@ -133,7 +133,7 @@ class WorkshopSurveyViews
     }
 
     public function survey_avgs_by_planner(){
-         global $database;
+        global $database;
 
         $result = $this->wsModel->get_survey_totals_by_FY('fyavgs');
 
@@ -194,6 +194,88 @@ class WorkshopSurveyViews
         </div>
 
         <?php            
+    }
+
+    public function survey_sat_percentages_by_planner(){
+
+        global $database;
+
+        $result = $this->wsModel->get_survey_totals_by_FY('satPers');
+
+        $q1Per_counter = 0;
+        $q2Per_counter = 0;
+        $q3Per_counter = 0;
+        $q4Per_counter = 0;
+        $totalPer_avg  = 0;
+
+        $nonZeroRowCounter = 0;
+
+        ?>
+
+        <div class="table-responsive">
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Counselor</th>
+                        <th>Qtr 1</th>
+                        <th>Qtr 2</th>
+                        <th>Qtr 3</th>
+                        <th>Qtr 4</th>
+                        <th>Total</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                        foreach ($result as $row) {
+                            
+                            $zeros = ( is_null( $row['Tot_Perc'] ) )? TRUE : FALSE;
+
+                                $td1 = $database->escape_values( $row['FirstName'] ." ". $row['LastName'] );
+                                $td2 = $database->escape_values( $row['Qtr1_Perc'] );
+                                $td3 = $database->escape_values( $row['Qtr2_Perc'] );
+                                $td4 = $database->escape_values( $row['Qtr3_Perc'] );
+                                $td5 = $database->escape_values( $row['Qtr4_Perc'] );
+                                $td6 = $database->escape_values( $row['Tot_Perc'] );
+
+                            
+                            ?>
+                                <tr <?php if( $zeros ){ echo ' class="zero" '; } ?> >
+                                    <td><?php echo $td1; ?></td>
+                                    <td><?php echo !empty( $td2 )? $td2 . "%" : '--';  ?></td>
+                                    <td><?php echo !empty( $td3 )? $td3 . "%" : '--';  ?></td>
+                                    <td><?php echo !empty( $td4 )? $td4 . "%" : '--';  ?></td>
+                                    <td><?php echo !empty( $td5 )? $td5 . "%" : '--';  ?></td>
+                                    <td><?php echo !empty( $td6 )? $td6 . "%" : '--';  ?></td>
+                                    <td>Grade Here</td>
+                                </tr>
+
+                            <?php
+                                    // $q1aAvg_counter       += $row['q1a_avg'];
+                                    // $q1bAvg_counter       += $row['q1b_avg'];
+                                    // $q1cAvg_counter       += $row['q1c_avg'];
+                                    // $total_avg            += $row['total_avg'];
+
+                                    // if( !$zeros ){ $nonZeroRowCounter++; }
+                        } //end row
+                    
+                    ?>
+                    <tr class="totals">
+                        <td>TOTALS</td>
+                        <td><?php //echo round( $database->escape_values( $q1aAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
+                        <td><?php //echo round( $database->escape_values( $q1bAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
+                        <td><?php //echo round( $database->escape_values( $q1cAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
+                        <td><?php //echo round( $database->escape_values( $q1cAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
+                        <td><?php //echo round( $database->escape_values( $q1cAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
+                        <td><?php //echo round( $database->escape_values( $total_avg ) / $nonZeroRowCounter, 2 ); ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <?php   
+
+
     }
 
 }
