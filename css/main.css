@@ -8532,6 +8532,10 @@ h1 {
   border: 1px solid blue;
 }
 
+tr.zero td {
+  color: #a6a6a6 !important;
+}
+
 tr.totals {
   border-top: 2px solid black;
 }

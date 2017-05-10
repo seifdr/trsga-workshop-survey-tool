@@ -19,12 +19,9 @@ class User extends DatabaseObject
     //     # code...
     // }
 
-
-
-
 }
 
-$users = new User;
+$userModel = new User;
 
 
 ?>
