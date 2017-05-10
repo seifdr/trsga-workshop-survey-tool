@@ -4,8 +4,10 @@ body {
     border: 1px solid red;
 }
 
-h1 {
-    border: 1px solid blue;
+table {
+    th {
+        text-align: center;
+    }
 }
 
 tr.zero {

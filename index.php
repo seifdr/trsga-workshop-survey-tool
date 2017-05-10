@@ -12,12 +12,23 @@
     </header>
     <body>
         <div class="container">
-            <div class="row">
-                <div class="col mb-4">
-                    <h1>TRS Workshop Survey Database</h1>
+            <div class="row mb-4">
+                <div class="col">
+                    <h1>TRS Workshop Survey Database - FY <?php echo $wsView->fy; ?></h1>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mb-4">
+                <div class="col-12 col-sm-6">
+                    <h5>FY Workshop Rating</h5>
+                    <p><small>aggregated from all planners in current FY</small></p>
+                    <?php 
+
+                        $wsView->workshop_rating();
+
+                    ?>
+                </div>
+            </div>
+            <div class="row mb-4">
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6">
                     <h5>Survey Counts By Planner</h5>
                     <?php 
@@ -42,7 +53,7 @@
                 </div>
             </div>
  
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col-12 col-sm-12 col-md-12 col-lg-5">
                     <h5>FY Counts of all 4's, all 5's, and all combos</h5>
                     <?php 
@@ -60,12 +71,42 @@
                     ?>
                 </div>
             </div>
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col">
                     <h5>FY Survey Satisfaction Percentages by Planner</h5>
                     <?php
 
                         $wsView->survey_sat_percentages_by_planner();
+
+                    ?>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col">
+                    <h5>Events Attended in the past</h5>
+                    <?php 
+
+                        $wsView->past_attendance();
+
+                    ?>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col">
+                    <h5>Understanding of the following topics increased or stayed the same?</h5>
+                    <?php 
+
+                        $wsView->understandings();
+
+                    ?>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12 col-sm-6">
+                    <h5>Knowledge and Skills gained will be useful</h5>
+                    <?php 
+
+                        $wsView->knowledge_useful();
 
                     ?>
                 </div>

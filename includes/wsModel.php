@@ -38,66 +38,39 @@ class WorkshopSurvey extends DatabaseObject
     public $FirstName;
     public $LastName;
 
-    // function __construct() {
-    // {
-    //     # code...
-    // }
+    //for code
+    private $fy;
 
-    public function find_current_FY(){
-		$date =  getdate();
-		
-		$month_num = $date['mon'];
-		$year = $date['year'];
-
-		if(($month_num == 1)||($month_num == 2)||($month_num == 3)){
-			$fy_array = array('fy_quarter' => '3', 'fy_year' => $year);
-			return $fy_array;
-		} elseif(($month_num == 4)||($month_num == 5)||($month_num == 6)){
-			$fy_array = array('fy_quarter' => '4', 'fy_year' => $year);
-			return $fy_array;
-		} elseif(($month_num == 7)||($month_num == 8)||($month_num == 9)){
-			$adjusted_yr = $year + 1;
-			$fy_array = array('fy_quarter' => '1', 'fy_year' => $adjusted_yr);
-			return $fy_array;
-		} elseif(($month_num == 10)||($month_num == 11)||($month_num == 12)){
-			$adjusted_yr = $year + 1;
-			$fy_array = array('fy_quarter' => '2', 'fy_year' => $adjusted_yr);
-			return $fy_array;
-		} 	
-		
-	}	
-
-    // public function get_survey_base_sql( $fy = NULL ){
-
-    //     if( is_null( $fy ) ){
-    //         $fy = $this->find_current_FY()['fy_year'];
-    //     } 
-
-    //     date_default_timezone_set('America/Chicago');
-
-    //     $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, u.FirstName, u.LastName, u.Code FROM workshopSurvey17 AS ws LEFT OUTER JOIN users AS u ON ws.rep_code = u.Code WHERE ws.fiscal_yr = '". $fy ."' ";
-
-    //     $sqlb = " SELECT workshopSurvey17.id, IF( workshopSurvey17.question1a IS NULL, 0, workshopSurvey17.question1a ) AS question1a, IF( workshopSurvey17.question1b IS NULL, 0, workshopSurvey17.question1b ) AS question1b, IF( workshopSurvey17.question1c IS NULL, 0, workshopSurvey17.question1c ) AS question1c, IF( workshopSurvey17.question1d IS NULL, 0, workshopSurvey17.question1d ) AS question1d, workshopSurvey17.fiscal_qtr, IF( workshopSurvey17.fiscal_yr IS NULL, ". $fy .", workshopSurvey17.fiscal_yr ) AS fiscal_yr, IF( workshopSurvey17.survey_yr IS NULL, ". date('Y') .", workshopSurvey17.survey_yr ) AS survey_yr, IF( workshopSurvey17.DLC IS NULL, CONCAT( DATE_FORMAT( CURRENT_DATE(), '%m' ), DATE_FORMAT( CURRENT_DATE(), '%d' ) , 'XXXX' ), workshopSurvey17.DLC ) AS DLC, IF( workshopSurvey17.rep_code IS NULL, users.Code, workshopSurvey17.rep_code ) AS rep_code, users.FirstName, users.LastName, users.Code FROM workshopSurvey17 RIGHT OUTER JOIN users ON workshopSurvey17.rep_code = users.Code WHERE ( workshopSurvey17.fiscal_yr = '". $fy ."' OR workshopSurvey17.fiscal_yr IS NULL ) ";
-
-    //     $sqlc = $sqla . " UNION " . $sqlb;
-
-    //     $sqld = "SELECT *, ( STR_TO_DATE( CONCAT( SUBSTRING( t.DLC, 3, 2 ), '-', SUBSTRING( t.DLC, 1, 2 ), '-', ( IF( t.survey_yr IS NULL, DATE_FORMAT( CURRENT_DATE(), '%Y' ),  t.survey_yr ) ) ), '%d-%m-%Y' ) ) AS session_date FROM (". $sqlc .") AS t ORDER BY t.rep_code ASC, session_date ASC";
-        
-    //     return $sqld;
-    // }
-
-    public function get_survey_totals_by_FY( $type = NULL, $fy = NULL ){
+    function __construct( $fy = NULL ) {
+        $this->fy = $fy;
+    }
+ 
+    public function get_workshop_ranking(){
         global $database;
 
-        if( is_null( $fy ) ){
-            $fy = $this->find_current_FY()['fy_year'];
-        } 
+        $sql = "SELECT ROUND( AVG( question1d ), 2 ) as questDavg 
+                    FROM workshopSurvey17 
+                    WHERE fiscal_yr = '". $this->fy ."'
+               ";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+        
+    }
+
+    public function get_survey_totals_by_FY( $type = NULL ){
+        global $database;
 
         date_default_timezone_set('America/Chicago');
 
-        $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, u.FirstName, u.LastName, u.Code FROM workshopSurvey17 AS ws LEFT OUTER JOIN users AS u ON ws.rep_code = u.Code WHERE ws.fiscal_yr = '". $fy ."' ";
+        $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, u.FirstName, u.LastName, u.Code FROM workshopSurvey17 AS ws LEFT OUTER JOIN users AS u ON ws.rep_code = u.Code WHERE ws.fiscal_yr = '". $this->fy ."' ";
 
-        $sqlb = " SELECT workshopSurvey17.id, IF( workshopSurvey17.question1a IS NULL, 0, workshopSurvey17.question1a ) AS question1a, IF( workshopSurvey17.question1b IS NULL, 0, workshopSurvey17.question1b ) AS question1b, IF( workshopSurvey17.question1c IS NULL, 0, workshopSurvey17.question1c ) AS question1c, IF( workshopSurvey17.question1d IS NULL, 0, workshopSurvey17.question1d ) AS question1d, workshopSurvey17.fiscal_qtr, IF( workshopSurvey17.fiscal_yr IS NULL, ". $fy .", workshopSurvey17.fiscal_yr ) AS fiscal_yr, IF( workshopSurvey17.survey_yr IS NULL, ". date('Y') .", workshopSurvey17.survey_yr ) AS survey_yr, IF( workshopSurvey17.DLC IS NULL, CONCAT( DATE_FORMAT( CURRENT_DATE(), '%m' ), DATE_FORMAT( CURRENT_DATE(), '%d' ) , 'XXXX' ), workshopSurvey17.DLC ) AS DLC, IF( workshopSurvey17.rep_code IS NULL, users.Code, workshopSurvey17.rep_code ) AS rep_code, users.FirstName, users.LastName, users.Code FROM workshopSurvey17 RIGHT OUTER JOIN users ON workshopSurvey17.rep_code = users.Code WHERE ( workshopSurvey17.fiscal_yr = '". $fy ."' OR workshopSurvey17.fiscal_yr IS NULL ) ";
+        $sqlb = " SELECT workshopSurvey17.id, IF( workshopSurvey17.question1a IS NULL, 0, workshopSurvey17.question1a ) AS question1a, IF( workshopSurvey17.question1b IS NULL, 0, workshopSurvey17.question1b ) AS question1b, IF( workshopSurvey17.question1c IS NULL, 0, workshopSurvey17.question1c ) AS question1c, IF( workshopSurvey17.question1d IS NULL, 0, workshopSurvey17.question1d ) AS question1d, workshopSurvey17.fiscal_qtr, IF( workshopSurvey17.fiscal_yr IS NULL, ". $this->fy .", workshopSurvey17.fiscal_yr ) AS fiscal_yr, IF( workshopSurvey17.survey_yr IS NULL, ". date('Y') .", workshopSurvey17.survey_yr ) AS survey_yr, IF( workshopSurvey17.DLC IS NULL, CONCAT( DATE_FORMAT( CURRENT_DATE(), '%m' ), DATE_FORMAT( CURRENT_DATE(), '%d' ) , 'XXXX' ), workshopSurvey17.DLC ) AS DLC, IF( workshopSurvey17.rep_code IS NULL, users.Code, workshopSurvey17.rep_code ) AS rep_code, users.FirstName, users.LastName, users.Code FROM workshopSurvey17 RIGHT OUTER JOIN users ON workshopSurvey17.rep_code = users.Code WHERE ( workshopSurvey17.fiscal_yr = '". $this->fy ."' OR workshopSurvey17.fiscal_yr IS NULL ) ";
 
         $sqlc = $sqla . " UNION " . $sqlb;
 
@@ -181,9 +154,103 @@ class WorkshopSurvey extends DatabaseObject
         return $result;
     }
 
+    public function get_past_attendance(){
+        global $database;
+
+        $sql = " SELECT 
+                    ROUND( SUM( 
+                        IF( question2 LIKE '%1%', 1, 0 )
+                    ) / COUNT(*) * 100, 2 ) as 'First TRS Event',
+
+                    SUM( IF( question2 LIKE '%1%', 1, 0 ) ) as 'First TRS Event Count',
+
+                    ROUND( SUM( 
+                        IF( question2 LIKE '%2%', 1, 0 )
+                    ) / COUNT(*) * 100, 2 ) as 'One-on-one Couseling',
+
+                    SUM( IF( question2 LIKE '%2%', 1, 0 ) ) as 'One-on-one Couseling Count',
+
+
+                    ROUND( SUM( 
+                        IF( question2 LIKE '%3%', 1, 0 )
+                    ) / COUNT(*) * 100, 2 ) as 'Half-Day Seminar',
+                    
+                    SUM( IF( question2 LIKE '%3%', 1, 0 ) ) as 'Half-Day Seminar Count',
+                    
+                    ROUND( SUM( 
+                        IF( question2 LIKE '%4%', 1, 0 )
+                    ) / COUNT(*) * 100, 2 ) as 'Pre-Retirement Workshop',
+                    
+                    SUM( IF( question2 LIKE '%4%', 1, 0 ) ) as 'Pre-Retirement Workshop Count',
+                    
+                    ROUND( SUM( 
+                        IF( question2 LIKE '%5%', 1, 0 )
+                    ) / COUNT(*) * 100, 2 ) as 'Mid-Career Workshop',
+                    
+                    SUM( IF( question2 LIKE '%5%', 1, 0 ) ) as 'Mid-Career Workshop Count',
+                    
+                    ROUND( SUM( 
+                        IF( question2 LIKE '%6%', 1, 0 )
+                    ) / COUNT(*) * 100, 2 ) as 'New Hire Workshop',
+                    
+                    SUM( IF( question2 LIKE '%6%', 1, 0 ) ) as 'New Hire Workshop Count'
+                    
+                    FROM ". static::$table_name ."
+                    WHERE fiscal_yr = ". $this->fy ." ";
+
+        
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+        
+    }
+
+    public function get_understandings(){
+        global $database;
+
+        $sql = " SELECT ROUND( AVG( question3a ), 2) as 'Eligibility Requirements', 
+                        ROUND( AVG( question3b ), 2) as 'Plans of Retiremnet/Options' ,
+                        ROUND( AVG( question3c ), 2) as 'Beneficiary Information',
+                        ROUND( AVG( question3d ), 2) as 'Service Credit'
+                    FROM ". static::$table_name ."
+                    WHERE fiscal_yr = ". $this->fy ." ";
+
+        
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+        
+    }
+
+    public function get_knowledge_useful(){
+        global $database;
+
+        $sql = " SELECT SUM( IF( question4 = 1, 1, 0 ) ) as Yes,
+                        SUM( IF( question4 != 1, 1, 0 ) ) as No,
+                        ROUND( ( SUM( IF( question4 = 1, 1, 0 ) ) / ( COUNT(*) ) ), 1) * 100  as YesPerc
+                    FROM ". static::$table_name ."
+                    WHERE fiscal_yr = ". $this->fy ." ";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+    }
+
 }
 
-$wsModel = new WorkshopSurvey;
+//$wsModel = new WorkshopSurvey();
 
 
 ?>

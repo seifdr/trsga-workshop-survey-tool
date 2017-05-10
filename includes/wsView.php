@@ -6,22 +6,72 @@
 class WorkshopSurveyViews 
 {
     private $wsModel;
+    public $fy;
 
     function __construct( )
     {
-         $this->wsModel = new WorkshopSurvey();
+
+        $this->fy = $this->find_current_FY()['fy_year'];
+
+        $this->wsModel = new WorkshopSurvey( '2017' );
+    }
+
+    public function find_current_FY(){
+		$date =  getdate();
+		
+		$month_num = $date['mon'];
+		$year = $date['year'];
+
+		if(($month_num == 1)||($month_num == 2)||($month_num == 3)){
+			$fy_array = array('fy_quarter' => '3', 'fy_year' => $year);
+			return $fy_array;
+		} elseif(($month_num == 4)||($month_num == 5)||($month_num == 6)){
+			$fy_array = array('fy_quarter' => '4', 'fy_year' => $year);
+			return $fy_array;
+		} elseif(($month_num == 7)||($month_num == 8)||($month_num == 9)){
+			$adjusted_yr = $year + 1;
+			$fy_array = array('fy_quarter' => '1', 'fy_year' => $adjusted_yr);
+			return $fy_array;
+		} elseif(($month_num == 10)||($month_num == 11)||($month_num == 12)){
+			$adjusted_yr = $year + 1;
+			$fy_array = array('fy_quarter' => '2', 'fy_year' => $adjusted_yr);
+			return $fy_array;
+		} 	
+		
+	}	
+
+    public function workshop_rating(){
+        global $database;
+
+        $result = $this->wsModel->get_workshop_ranking();
+
+        ?>
+         <div class="table-responsive">
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                    <th>How would you rank the workshop overall</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <td><?php echo $database->escape_values( $result[0]['questDavg'] ); ?></td>
+                </tbody>
+            </table>
+        </div>
+        <?php
+        
     }
 
     public function survey_counts_by_planner( $type = NULL ){
         global $database;
 
-            $result = $this->wsModel->get_survey_totals_by_FY( $type );
-            
-            $qtr1Counter        = 0;
-            $qtr2Counter        = 0; 
-            $qtr3Counter        = 0; 
-            $qtr4Counter        = 0;
-            $qtrTotalCounter    = 0;       
+        $result = $this->wsModel->get_survey_totals_by_FY( $type );
+        
+        $qtr1Counter        = 0;
+        $qtr2Counter        = 0; 
+        $qtr3Counter        = 0; 
+        $qtr4Counter        = 0;
+        $qtrTotalCounter    = 0;       
 
         ?>
         <div class="table-responsive">
@@ -277,6 +327,113 @@ class WorkshopSurveyViews
 
 
     }
+
+    public function past_attendance(){
+        global $database;
+
+        $result = $this->wsModel->get_past_attendance();
+                ?>
+
+        <div class="table-responsive">
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Events</th>
+                        <th>Precentage</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+
+                        foreach ($result[0] as $key => $value) {
+                        
+                            if (strpos($key, 'Count') !== false) {
+                               echo "<td>{$value}</td></tr>";
+                            } else {
+                                echo "<tr><td>{$key}</td><td>{$value}%</td>";
+                            }
+                        }
+                    
+                    ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php
+
+    }
+
+    public function understandings(){
+        global $database;
+
+        $result = $this->wsModel->get_understandings();
+
+        ?>
+
+        <div class="table-responsive">
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Topics</th>
+                        <th>Average Value</th>
+                        <th>Average Response</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+
+                        $legend = array(
+                            'N/A',
+                            'Not sure',
+                            'About the same',
+                            'Increased a little',
+                            'Increased a lot',
+                        );
+                    
+                        foreach ($result[0] as $key => $value) {
+
+                            $roundedVal = $database->escape_values( round( $value ) );
+                            $rating     = $legend[$roundedVal];
+
+                            echo "<tr><td>{$key}</td><td>". $database->escape_values( $value ) ."</td><td>{$rating}</td></tr>";
+                        }
+
+                    ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php   
+
+    }
+
+    public function knowledge_useful(){
+
+       global $database;
+
+        $result = $this->wsModel->get_knowledge_useful();
+
+        ?>
+        <p><?php echo $database->escape_values( $result[0]['YesPerc'] ); ?>% of people found the knowledge and information gained from the workshops useful.</p>
+         <div class="table-responsive">
+            <table class="table table-striped text-center">
+                <thead>
+                    <tr>
+                    <th>Response</th>
+                    <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Yes</td><td><?php echo $database->escape_values( $result[0]['Yes'] ); ?></td></tr>
+                    <tr><td>No</td><td><?php echo $database->escape_values( $result[0]['No'] ); ?></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <?php
+
+    }
+
 
 }
 
