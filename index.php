@@ -2,6 +2,8 @@
 
     include('includes/initialize.php');
 
+    $wsView = new WorkshopSurveyViews();
+
     // $result = $users->find_all();
 
 ?>
@@ -14,7 +16,7 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col">
-                    <h1>TRS Workshop Survey Database - FY <?php echo $wsView->fy; ?></h1>
+                    <h1>TRS Workshop Survey Database - FY <?php echo $wsView->current_fy; ?></h1>
                 </div>
             </div>
             <div class="row mb-4">

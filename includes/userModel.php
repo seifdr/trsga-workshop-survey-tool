@@ -7,12 +7,15 @@ class User extends DatabaseObject
 {
 
     protected static $table_name = "users";	
-	protected static $db_fields  = array('id','FirstName', 'LastName', "Code");
+	protected static $db_fields  = array('id','FirstName', 'LastName', "surveyID", "clearance", "user_type", "active");
 	
     public $id;
     public $FirstName;
     public $LastName;
-    public $Code;
+    public $clearance;
+	public $user_type;
+	public $surveyID;
+	public $active;
 
     // function __construct() {
     // {
@@ -21,7 +24,7 @@ class User extends DatabaseObject
 
 }
 
-$userModel = new User;
+// $userModel = new User;
 
 
 ?>

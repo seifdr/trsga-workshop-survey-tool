@@ -24,3 +24,23 @@ tr.totals {
         font-weight: bold;
     }
 }
+
+
+//CSS FOR THE REPORT PAGE 
+
+table#reportHeading {
+
+    max-width: 900px;
+
+    td {
+        border: none;
+    }
+
+    td:nth-child(odd){
+        text-align: right;
+    }
+
+    td:nth-child(even){
+        text-align: left;
+    }
+}

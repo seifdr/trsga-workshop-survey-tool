@@ -6,9 +6,12 @@
 
     require( 'database_object.php' );
     require( 'functions.php' );
+    require( 'trsgaTime.php' );
     require( 'wsModel.php' );
+    require( 'userModel.php');
     require( 'wsView.php' );
-    require( 'userModel.php' );
+    require( 'wsController.php' );
+     
 
 
 ?>

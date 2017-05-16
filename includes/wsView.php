@@ -6,39 +6,53 @@
 class WorkshopSurveyViews 
 {
     private $wsModel;
-    public $fy;
+    private $userModel;
+    private $trsgaTime;
 
-    function __construct( )
+    public $current_fy;
+
+    public $currentMonth;
+    public $currentYear;
+
+    function __construct( $monthNum = NULL, $year = NULL, $fyYear = NULL, $fyQuarter = NULL )
     {
+        
+        $this->currentMonth = $this->find_current_month(TRUE);
+        $this->currentYear  = $this->find_year();
 
-        $this->fy = $this->find_current_FY()['fy_year'];
+        $this->current_fy = $this->find_current_FY()['fy_year'];
 
-        $this->wsModel = new WorkshopSurvey( '2017' );
+        // 'counselorCode', 'monthNumber', 'year', 'fy', 'fq'
+
+        $modelParams = array();
+
+        if( !empty( $monthNum ) ){
+            $modelParams['monthNumber'] = $monthNumber; 
+        }
+        
+        if( !empty( $year ) ){
+            $modelParams['year'] = $year; 
+        }
+
+        if( !empty( $fyYear ) ){
+            $modelParams['fy'] = $fyYear; 
+        } else {
+            $modelParams['fy'] = $this->current_fy;
+        } 
+
+        if( !empty( $fyQuarter ) ){
+            $modelParams['fq'] = $fyQuarter; 
+        }
+
+        $this->wsModel = new WorkshopSurvey( $modelParams );
+
+        $this->userModel = new User();
+
+        $this->trsgaTime = new trsgaTime();
+
+		$this->currentMonth = $this->trsgaTime->format('m');
+		$this->currentYear = $this->trsgaTime->format('Y');
     }
-
-    public function find_current_FY(){
-		$date =  getdate();
-		
-		$month_num = $date['mon'];
-		$year = $date['year'];
-
-		if(($month_num == 1)||($month_num == 2)||($month_num == 3)){
-			$fy_array = array('fy_quarter' => '3', 'fy_year' => $year);
-			return $fy_array;
-		} elseif(($month_num == 4)||($month_num == 5)||($month_num == 6)){
-			$fy_array = array('fy_quarter' => '4', 'fy_year' => $year);
-			return $fy_array;
-		} elseif(($month_num == 7)||($month_num == 8)||($month_num == 9)){
-			$adjusted_yr = $year + 1;
-			$fy_array = array('fy_quarter' => '1', 'fy_year' => $adjusted_yr);
-			return $fy_array;
-		} elseif(($month_num == 10)||($month_num == 11)||($month_num == 12)){
-			$adjusted_yr = $year + 1;
-			$fy_array = array('fy_quarter' => '2', 'fy_year' => $adjusted_yr);
-			return $fy_array;
-		} 	
-		
-	}	
 
     public function workshop_rating(){
         global $database;
@@ -435,9 +449,300 @@ class WorkshopSurveyViews
     }
 
 
-}
+    // SURVEY REPORT FUNCTIONS
+	public function find_current_month($number = FALSE){
+		$date =  getdate();
+        return ( $number )? $date['mon'] : $date['month'];
+	}
+		
+	public function find_previous_month(){
+		$date =  getdate();
+		$month_num = $date['mon'];
+		
+		// $previous_month_num = $month_num - 1;
+		
+		if($month_num ==1){
+			$previous_month_num = 12;
+		} else {
+			$previous_month_num = $month_num - 1;
+		}
+		
+		$month_array = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December");
+		$previous_month = $month_array[$previous_month_num];
+		
+		return $previous_month; // Displays the current month
+	}	
+	
+	public function find_current_FY(){
 
-$wsView = new WorkshopSurveyViews( );
+		$month_num = $this->currentMonth;
+		$year = $this->currentYear;
+
+		if(($month_num == 1)||($month_num == 2)||($month_num == 3)){
+			$fy_array = array('fy_quarter' => '3', 'fy_year' => $year);
+			return $fy_array;
+		} elseif(($month_num == 4)||($month_num == 5)||($month_num == 6)){
+			$fy_array = array('fy_quarter' => '4', 'fy_year' => $year);
+			return $fy_array;
+		} elseif(($month_num == 7)||($month_num == 8)||($month_num == 9)){
+			$adjusted_yr = $year + 1;
+			$fy_array = array('fy_quarter' => '1', 'fy_year' => $adjusted_yr);
+			return $fy_array;
+		} elseif(($month_num == 10)||($month_num == 11)||($month_num == 12)){
+			$adjusted_yr = $year + 1;
+			$fy_array = array('fy_quarter' => '2', 'fy_year' => $adjusted_yr);
+			return $fy_array;
+		} 	
+		
+	}
+	
+	public function find_year($offset=false){
+			$date =  getdate();
+			$month = $date['mon'];
+			$year = $date['year'];
+		
+		if(($offset == true)&&($month == 1)){
+			//Offset compensates for pulling previous month on page load. Ex. December 2012 surveys will be posted in January 2013. While the previous
+			// month will be selected fine, the current year needs to be decremented 1 year to compensate for the new year. 
+			$decremented_year = $year - 1;
+			return $decremented_year;
+		} else {
+			return $year;	
+		}
+	}
+
+	public function find_FY(){
+	
+		$month = $this->trsgaTime->format('m');
+		
+		$year = $this->trsgaTime->format('Y');
+			
+		if($month >= 7){
+			//Offset compensates for pulling previous month on page load. Ex. December 2012 surveys will be posted in January 2013. While the previous
+			// month will be selected fine, the current year needs to be decremented 1 year to compensate for the new year. 
+			$incremented_year = $year + 1;
+			return $incremented_year;
+		} else {
+			return $year;	
+		}			
+	}
+
+	public function find_all_fiscal_years(){
+		//returns an array of all fiscal years since we started surveying in 2012 		
+		$start_FY = 2016;
+		$current_FY = $this->find_FY();
+		
+		$all_fys = array();
+		
+		while ($start_FY <= $current_FY) {
+			array_push($all_fys, $start_FY);
+			$start_FY++;
+		}
+		
+		return $all_fys;
+	}
+
+    public function find_all_years(){
+		//returns an array of all years since we started surveying in 2012
+		$start_yr = 2016;
+		$current_yr = $this->find_year();
+		
+		$all_yrs = array();
+		
+		while ($start_yr <= $current_yr) {
+			array_push($all_yrs, $start_yr);
+			$start_yr++;
+		}
+		
+		return $all_yrs;
+	}
+
+    //SURVEY REPORT FUNCTIONS
+
+    public function report_dropdowns(){
+
+            $counselors = $this->userModel->find_by_sql(
+                // 'SELECT * FROM users WHERE active = 1'
+                'SELECT * FROM users ORDER BY active DESC , LastName ASC'
+            );
+
+            $months = array( 
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December'
+            );
+
+            $fy_quarters = array( 'Fiscal Quarter 1', 'Fiscal Quarter 2', 'Fiscal Quarter 3', 'Fiscal Quarter 4' );
+
+            $years = $this->find_all_years();
+
+            $fiscal_years = $this->find_all_fiscal_years();
+
+        ?>
+            <form class="form-inline">
+                <!--<label class="mr-sm-2" for="inlineFormCustomSelect">Preference</label>-->
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+                    <option>All Counselors</option>
+                    <optgroup label="Active">
+                    <?php 
+
+                    $activeInactiveBreakPoint = FALSE;
+
+                    foreach ($counselors as $counselor ) {
+                        $fullname = $counselor->FirstName . " " . $counselor->LastName;
+
+                        if( $counselor->active == 0 && $activeInactiveBreakPoint == FALSE ){
+                            echo "<optgroup label='Inactive'>";
+                            $activeInactiveBreakPoint == TRUE;
+                        }
+                        echo  "<option value=\"{$counselor->surveyID}\">{$fullname}</option>";
+                    }
+
+                    ?>
+                </select>
+
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+                    <option>All Months</option>
+                    <optgroup label="By Month">
+                    <?php 
+                    
+                    for ($i=0; $i < count($months) ; $i++) { 
+                        echo  "<option value=\"{$i}\">{$months[$i]}</option>";
+                    }
+                    
+                    ?>
+                    </optgroup>
+                    <optgroup label="By Fiscal Quarters">
+                    <?php 
+
+                    for ($i=0; $i < count($fy_quarters) ; $i++) { 
+                        echo  "<option value=\"{$i}\">{$fy_quarters[$i]}</option>";
+                    }
+
+                    ?>    
+                    </optgroup>
+                </select>
+
+                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+                    <option>All Years</option>
+                    <?php 
+                        foreach ($years as $year ) {
+                            echo  "<option value=\"{$year}\">{$year}</option>";
+                        }
+                    ?>
+                </select>
+
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+                    <option>All FY Years</option>
+                    <?php 
+                        foreach ($fiscal_years as $year ) {
+                            echo  "<option value=\"{$year}\">{$year}</option>";
+                        }
+                    ?>
+                </select>
+
+                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+                    <option value="25" >25 Surveys</option>
+                    <option value="50" >50 Surveys</option>
+                    <option value="100" >100 Surveys</option>
+                    <option value="all" >All Surveys</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+
+        <?php 
+    }
+
+    public function report_heading( $counselor = NULL, $month = NULL, $year = NULL, $fyear = NULL, $survey = NULL ) {
+        $total_surverys = 0; 
+        $total_fails    = 0;
+        $count_5s       = 0;
+        $count_4s       = 0;
+        $count_45s       = 0;
+        $surverySatPer  = 0;
+        $avgSurveyScore = 0; 
+        ?>
+
+            <h1>Workshop Survey Report</h1>
+            <p><strong>Returned all surveys collected for all counselors in April 2017</strong></p>
+            <div class="row mb-4" >
+                <div class="col-6 col-sm-4 col-md-3" >Show only fails</div>
+                <div class="col-6 col-sm-4 col-md-3" >Download CSV</div>
+            </div>
+            <table class='table' id="reportheading">
+                <tbody>
+                    <tr>
+                        <td>Total Suverys:</td>
+                        <td>92</td>
+                        <td>Count of 5's:</td>
+                        <td>80</td>
+                        <td>Survey Satisfaction Percentage:</td>
+                        <td>95%</td>
+                    </tr>
+                    <tr>
+                        <td>Total Fails:</td>
+                        <td>5</td>
+                        <td>Count of 4's:</td>
+                        <td>2</td>
+                        <td>Average Survey Score:</td>
+                        <td>4.84</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Count of 4's and 5's:</td>
+                        <td>87</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+        <?php
+    }
+
+    public function ws_survey_report(){
+
+        $result = $this->wsModel->get_suvery_report();
+
+        ?>
+
+        <table class='table table-striped' id="reportbody">
+            <tbody>
+                <tr>
+                    <th>Suvery ID</th>
+                    <th>Event Date</th>
+                    <th>Location</th>
+                    <th>Counselor</th>
+                    <th>Prepared</th>
+                    <th>Knowledge</th>
+                    <th>Understand</th>
+                    <th>Helpful</th>
+                    <th>Satisfaction</th>
+                    <th>Overall</th>
+                    <th></th>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <?php
+        
+
+    }
+
+
+}
 
 
 ?>

@@ -8542,3 +8542,16 @@ tr.totals {
 tr.totals td {
   font-weight: bold;
 }
+
+table#reportHeading {
+  max-width: 900px;
+}
+table#reportHeading td {
+  border: none;
+}
+table#reportHeading td:nth-child(odd) {
+  text-align: right;
+}
+table#reportHeading td:nth-child(even) {
+  text-align: left;
+}
