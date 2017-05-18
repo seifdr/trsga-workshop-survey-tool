@@ -40,7 +40,11 @@ class trsgaTime extends DateTime {
 	public function returnYear($input){
 		return date('Y', strtotime($input));
 	}
-	
+
+	public function returnMonthNum($input){
+		return date('M', strtotime($input));
+	}
+
 	public function convert_date_to_MYSQL_date($date){
 		date_default_timezone_set('America/New_York');
 		return date('Y-m-d', strtotime($date));

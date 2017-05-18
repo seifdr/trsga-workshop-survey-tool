@@ -39,21 +39,27 @@ class WorkshopSurvey extends DatabaseObject
     public $LastName;
 
     //for code
-    private $counselorCode;
-    private $monthNumber;
-    private $year;
-    private $fy;
-    private $fq;
+    public $counselorCode;
+    public $monthNumber;
+    public $year;
+    public $fy;
+    public $fq;
+
+    // public $current_fy;
+
+    public $currentMonth;
+    public $currentYear;
+
     // private $survey;
 
     function __construct( $params = NULL ) {
         
+        $this->trsgaTime = new trsgaTime();
+
         //$params should be an array
         if( !is_null( $params ) ){
             $this->loadParams( $params );
         }
-
-
     }
 
     private function loadParams( $params ){
@@ -63,6 +69,13 @@ class WorkshopSurvey extends DatabaseObject
             if(  in_array( $key, $allowedKeys ) ){
                 $this->$key = $value;
             }
+        }
+
+        $this->currentMonth = $this->find_current_month(TRUE);
+        $this->currentYear  = $this->find_year();
+
+        if( empty( $this->fy ) ){
+            $this->fy = $this->find_current_FY()['fy_year'];
         }
     }
  
@@ -308,12 +321,130 @@ class WorkshopSurvey extends DatabaseObject
 
         return $result;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // SURVEY REPORT FUNCTIONS
+	public function find_current_month($number = FALSE){
+		$date =  getdate();
+        return ( $number )? $date['mon'] : $date['month'];
+	}
+		
+	public function find_previous_month(){
+		$date =  getdate();
+		$month_num = $date['mon'];
+		
+		// $previous_month_num = $month_num - 1;
+		
+		if($month_num ==1){
+			$previous_month_num = 12;
+		} else {
+			$previous_month_num = $month_num - 1;
+		}
+		
+		$month_array = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December");
+		$previous_month = $month_array[$previous_month_num];
+		
+		return $previous_month; // Displays the current month
+	}	
+	
+	public function find_current_FY(){
+
+        $month_num = $this->currentMonth;
+		$year = $this->currentYear;
+
+		if(($month_num == 1)||($month_num == 2)||($month_num == 3)){
+			$fy_array = array('fy_quarter' => '3', 'fy_year' => $year);
+			return $fy_array;
+		} elseif(($month_num == 4)||($month_num == 5)||($month_num == 6)){
+			$fy_array = array('fy_quarter' => '4', 'fy_year' => $year);
+			return $fy_array;
+		} elseif(($month_num == 7)||($month_num == 8)||($month_num == 9)){
+			$adjusted_yr = $year + 1;
+			$fy_array = array('fy_quarter' => '1', 'fy_year' => $adjusted_yr);
+			return $fy_array;
+		} elseif(($month_num == 10)||($month_num == 11)||($month_num == 12)){
+			$adjusted_yr = $year + 1;
+			$fy_array = array('fy_quarter' => '2', 'fy_year' => $adjusted_yr);
+			return $fy_array;
+		} 
+		
+	}
+	
+	public function find_year($offset=false){
+			$date =  getdate();
+			$month = $date['mon'];
+			$year = $date['year'];
+		
+		if(($offset == true)&&($month == 1)){
+			//Offset compensates for pulling previous month on page load. Ex. December 2012 surveys will be posted in January 2013. While the previous
+			// month will be selected fine, the current year needs to be decremented 1 year to compensate for the new year. 
+			$decremented_year = $year - 1;
+			return $decremented_year;
+		} else {
+			return $year;	
+		}
+	}
+
+	public function find_FY(){
+	
+		$month = $this->trsgaTime->format('m');
+		
+		$year = $this->trsgaTime->format('Y');
+			
+		if($month >= 7){
+			//Offset compensates for pulling previous month on page load. Ex. December 2012 surveys will be posted in January 2013. While the previous
+			// month will be selected fine, the current year needs to be decremented 1 year to compensate for the new year. 
+			$incremented_year = $year + 1;
+			return $incremented_year;
+		} else {
+			return $year;	
+		}			
+	}
+
+	public function find_all_fiscal_years(){
+		//returns an array of all fiscal years since we started surveying in 2012 		
+		$start_FY = 2016;
+		$current_FY = $this->find_FY();
+		
+		$all_fys = array();
+		
+		while ($start_FY <= $current_FY) {
+			array_push($all_fys, $start_FY);
+			$start_FY++;
+		}
+		
+		return $all_fys;
+	}
+
+    public function find_all_years(){
+		//returns an array of all years since we started surveying in 2012
+		$start_yr = 2016;
+		$current_yr = $this->find_year();
+		
+		$all_yrs = array();
+		
+		while ($start_yr <= $current_yr) {
+			array_push($all_yrs, $start_yr);
+			$start_yr++;
+		}
+		
+		return $all_yrs;
+	}
 
     // SURVEY REPORT FUNCTIONS
 
     public function get_suvery_report(){
         echo "hello";
     }
+
+
 
 }
 
