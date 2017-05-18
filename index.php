@@ -2,7 +2,9 @@
 
     include('includes/initialize.php');
 
-    $wsView = new WorkshopSurveyViews();
+    $wsModel = new WorkshopSurvey();
+    $wsController = new WorkshopSurveyController( $wsModel );
+    $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
 
     // $result = $users->find_all();
 

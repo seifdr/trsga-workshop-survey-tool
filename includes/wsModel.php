@@ -59,6 +59,10 @@ class WorkshopSurvey extends DatabaseObject
         //$params should be an array
         if( !is_null( $params ) ){
             $this->loadParams( $params );
+        } else {
+            $this->currentMonth = $this->find_current_month(TRUE);
+            $this->currentYear  = $this->find_year();
+            $this->fy = $this->find_current_FY()['fy_year'];
         }
     }
 
