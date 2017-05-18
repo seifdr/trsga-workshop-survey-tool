@@ -4,7 +4,7 @@
 
     $wsController = new WorkshopSurveyController();
 
-    $wsView = new WorkshopSurveyViews( );
+    $wsView = new WorkshopSurveyViews();
 
     // $result = $users->find_all();
 
