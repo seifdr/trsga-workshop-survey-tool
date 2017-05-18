@@ -458,6 +458,7 @@ class WorkshopSurveyViews
         ?>
             <form class="form-inline">
                 <!--<label class="mr-sm-2" for="inlineFormCustomSelect">Preference</label>-->
+
                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
                     <option>All Counselors</option>
                     <optgroup label="Active">
@@ -472,7 +473,13 @@ class WorkshopSurveyViews
                             echo "<optgroup label='Inactive'>";
                             $activeInactiveBreakPoint == TRUE;
                         }
-                        echo  "<option value=\"{$counselor->surveyID}\">{$fullname}</option>";
+                        echo  "<option ";
+
+                        if( !empty( $this->wsModel->counselorCode ) && ( $this->wsModel->counselorCode == $counselor->surveyID ) ){
+                            echo " selected ";
+                        }
+                        
+                        echo " value=\"{$counselor->surveyID}\">{$fullname}</option>";
                     }
 
                     ?>
@@ -483,8 +490,13 @@ class WorkshopSurveyViews
                     <optgroup label="By Month">
                     <?php 
                     
-                    for ($i=0; $i < count($months) ; $i++) { 
-                        echo  "<option value=\"{$i}\">{$months[$i]}</option>";
+                    for ($i=0; $i < count($months) ; $i++) {
+                        $mn = $i + 1;
+                        echo  "<option ";
+
+                        if( empty( $this->wsModel->fq ) && ( !empty( $this->wsModel->monthNumber ) && ( $this->wsModel->monthNumber == $mn ) ) ) { echo " selected "; }
+
+                        echo " value=\"{$i}\">{$months[$i]}</option>";
                     }
                     
                     ?>
@@ -493,7 +505,11 @@ class WorkshopSurveyViews
                     <?php 
 
                     for ($i=0; $i < count($fy_quarters) ; $i++) { 
-                        echo  "<option value=\"{$i}\">{$fy_quarters[$i]}</option>";
+                        echo  "<option ";
+                        
+                        if( !empty( $this->wsModel->fq ) && ($i + 1) == $this->wsModel->fq ){ echo " selected "; }
+
+                        echo " value=\"{$i}\">{$fy_quarters[$i]}</option>";
                     }
 
                     ?>    
@@ -504,7 +520,13 @@ class WorkshopSurveyViews
                     <option>All Years</option>
                     <?php 
                         foreach ($years as $year ) {
-                            echo  "<option value=\"{$year}\">{$year}</option>";
+                            echo  "<option ";
+
+                            if( $year == $this->wsModel->year ){
+                                echo " selected ";
+                            }
+                            
+                            echo " value=\"{$year}\">{$year}</option>";
                         }
                     ?>
                 </select>
@@ -512,8 +534,14 @@ class WorkshopSurveyViews
                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
                     <option>All FY Years</option>
                     <?php 
-                        foreach ($fiscal_years as $year ) {
-                            echo  "<option value=\"{$year}\">{$year}</option>";
+                        foreach ($fiscal_years as $fyear ) {
+                            echo  "<option ";
+                            
+                            if( !empty( $this->wsModel->fy ) && $fyear == $this->wsModel->fy ){
+                                echo " selected ";
+                            }
+                            
+                            echo " value=\"{$fyear}\">{$fyear}</option>";
                         }
                     ?>
                 </select>
@@ -532,13 +560,9 @@ class WorkshopSurveyViews
     }
 
     public function report_heading( $counselor = NULL, $month = NULL, $year = NULL, $fyear = NULL, $survey = NULL ) {
-        $total_surverys = 0; 
-        $total_fails    = 0;
-        $count_5s       = 0;
-        $count_4s       = 0;
-        $count_45s       = 0;
-        $surverySatPer  = 0;
-        $avgSurveyScore = 0; 
+        global $database;
+        $result = $this->wsModel->get_survey_report_header_numbers();
+
         ?>
 
             <h1>Workshop Survey Report</h1>
@@ -551,25 +575,25 @@ class WorkshopSurveyViews
                 <tbody>
                     <tr>
                         <td>Total Suverys:</td>
-                        <td>92</td>
+                        <td><?php echo $database->escape_values( $result['TotalCount'] ); ?></td>
                         <td>Count of 5's:</td>
-                        <td>80</td>
+                        <td><?php echo $database->escape_values( $result['all5s'] ); ?></td>
                         <td>Survey Satisfaction Percentage:</td>
-                        <td>95%</td>
+                        <td><?php echo $database->escape_values( $result['surveySatPercentage'] ); ?>%</td>
                     </tr>
                     <tr>
                         <td>Total Fails:</td>
-                        <td>5</td>
+                        <td><?php echo $database->escape_values( $result['Fails'] ); ?></td>
                         <td>Count of 4's:</td>
-                        <td>2</td>
+                        <td><?php echo $database->escape_values( $result['all4s'] ); ?></td>
                         <td>Average Survey Score:</td>
-                        <td>4.84</td>
+                        <td><?php echo $database->escape_values( $result['avgScore'] ); ?></td>
                     </tr>
                     <tr>
                         <td></td>
                         <td></td>
                         <td>Count of 4's and 5's:</td>
-                        <td>87</td>
+                        <td><?php echo $database->escape_values( $result['all45s'] ); ?></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -583,6 +607,11 @@ class WorkshopSurveyViews
 
         $result = $this->wsModel->get_suvery_report();
 
+        $resultBody     = $result[1];
+        $resultBottom   = $result[0];
+
+        if( !empty( $resultBody ) AND count( $resultBody[0] ) > 0 ){
+
         ?>
 
         <table class='table table-striped' id="reportbody">
@@ -592,19 +621,39 @@ class WorkshopSurveyViews
                     <th>Event Date</th>
                     <th>Location</th>
                     <th>Counselor</th>
-                    <th>Prepared</th>
-                    <th>Knowledge</th>
-                    <th>Understand</th>
-                    <th>Helpful</th>
-                    <th>Satisfaction</th>
+                    <th>Knowledgable</th>
+                    <th>Effective</th>
+                    <th>Organized</th>
                     <th>Overall</th>
                     <th></th>
                 </tr>
+                <?php 
+
+                    foreach ($resultBody as $row) {
+                        echo ( $row['Failed'] )? "<tr class='bg-danger'>" : "<tr>";
+                        
+                        echo    "<td>{$row['id']}</td>
+                                <td>{$row['Date']}</td>
+                                <td>{$row['location']}</td>
+                                <td>{$row['Counselor']}</td>
+                                <td>{$row['Knowledgable']}</td>
+                                <td>{$row['Effective']}</td>
+                                <td>{$row['Organized']}</td>
+                                <td>{$row['Overall']}</td>
+                                <td>Full Surveys</td>
+                            </tr>";
+                    }
+
+                   
+
+                ?>
             </tbody>
         </table>
-
-
         <?php
+        // cloisng for count of $resultBody
+        } else {
+            echo "<p>No results found</p>";
+        } 
         
 
     }

@@ -24,9 +24,16 @@
     $wsModel = new WorkshopSurvey( $modelParams );
     $wsController = new WorkshopSurveyController( $wsModel );
     $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
+
+    if ( isset( $_GET['action'] ) && !empty( $_GET['action'] ) ) {
+        $wsController->{$_GET['action']}();
+    }
+
     // $model = new Model();
     // $controller = new Controller($model);
     // $view = new View($controller, $model);
+
+    look( $wsModel->params );
 
 
 ?>

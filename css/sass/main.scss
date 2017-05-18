@@ -44,3 +44,9 @@ table#reportHeading {
         text-align: left;
     }
 }
+
+table#reportBody {
+    tr.bg-danger {
+        color: #fff;
+    }
+}

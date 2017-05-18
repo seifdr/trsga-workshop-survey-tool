@@ -8555,3 +8555,7 @@ table#reportHeading td:nth-child(odd) {
 table#reportHeading td:nth-child(even) {
   text-align: left;
 }
+
+table#reportBody tr.bg-danger {
+  color: #fff;
+}

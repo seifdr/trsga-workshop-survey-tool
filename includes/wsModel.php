@@ -39,6 +39,8 @@ class WorkshopSurvey extends DatabaseObject
     public $LastName;
 
     //for code
+    public $params;
+
     public $counselorCode;
     public $monthNumber;
     public $year;
@@ -52,18 +54,14 @@ class WorkshopSurvey extends DatabaseObject
 
     // private $survey;
 
-    function __construct( $params = NULL ) {
+    function __construct() {
         
         $this->trsgaTime = new trsgaTime();
 
-        //$params should be an array
-        if( !is_null( $params ) ){
-            $this->loadParams( $params );
-        } else {
-            $this->currentMonth = $this->find_current_month(TRUE);
-            $this->currentYear  = $this->find_year();
-            $this->fy = $this->find_current_FY()['fy_year'];
-        }
+        $this->currentMonth = $this->find_current_month(TRUE);
+        $this->currentYear  = $this->find_year();
+        $this->fy = $this->find_current_FY()['fy_year'];
+
     }
 
     private function loadParams( $params ){
@@ -81,6 +79,10 @@ class WorkshopSurvey extends DatabaseObject
         if( empty( $this->fy ) ){
             $this->fy = $this->find_current_FY()['fy_year'];
         }
+    }
+
+    public function sanitizeAndLoadParams( $params ){
+        $this->loadParams( $params );
     }
  
     public function get_workshop_ranking(){
@@ -444,8 +446,140 @@ class WorkshopSurvey extends DatabaseObject
 
     // SURVEY REPORT FUNCTIONS
 
+    public function get_survey_report_header_numbers(){
+        global $database;
+
+        $sql = " SELECT 
+
+                    COUNT(*) as TotalCount,
+
+                    SUM( IF( ( ws.question1a <= 3 OR ws.question1b <= 3 OR ws.question1c <= 3 ) , 1, 0) ) AS Fails,
+
+                    SUM( IF( 
+                        ws.question1a = 4 AND ws.question1b = 4 AND ws.question1c = 4, 1, 0
+                    ) ) AS all4s,
+
+                    SUM( IF( 
+                        ws.question1a = 5 AND ws.question1b = 5 AND ws.question1c = 5, 1, 0
+                    ) ) AS all5s,
+
+                    SUM( IF( 
+                        ( ws.question1a = 4 OR ws.question1a = 5 ) AND 
+                        ( ws.question1b = 4 OR ws.question1b = 5 ) AND 
+                        ( ws.question1c = 4 OR ws.question1c = 5 ), 1, 0
+                    ) ) AS all45s,
+
+                    ROUND( AVG( 
+                        ws.question1d
+                    ), 2 ) AS avgScore
+
+                    FROM workshopSurvey17 AS ws ";
+
+                    $whereCnt = 0;
+
+                    if( !empty( $this->counselorCode ) ){
+                        $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
+                        $whereCnt++;
+                    }
+
+                    if( !empty( $this->monthNumber ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.survey_month_num = '". $this->monthNumber ."' ";
+                        $whereCnt++;
+                    }
+
+                    if( !empty( $this->year ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.survey_yr = '". $this->year ."' ";
+                        $whereCnt++;
+                    }
+
+                    if( !empty( $this->fy ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.fiscal_yr = '". $this->fy ."' ";
+                        $whereCnt++;
+                    }
+                    
+                    if( !empty( $this->fq ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.fiscal_qtr = '". $this->fq ."' ";
+                        $whereCnt++;
+                    }
+    
+       $sqla = " SELECT *, ROUND( ( ( ( t1.TotalCount - t1.Fails ) / t1.TotalCount ) * 100 ), 2 ) AS surveySatPercentage FROM (". $sql .") AS t1";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sqla ) as $row ) {
+            array_push( $result, $row );
+        }
+        return $result[0];
+
+    }
+
+    public function survey_report( $avgs = NULL ){
+        global $database;
+
+        date_default_timezone_set('America/Chicago');
+
+        $sqla = " SELECT ";
+
+        if( $avgs != NULL ){
+            $sqla .= "  ws.id, 
+                        CONCAT( SUBSTRING( ws.DLC, 1, 2 ), '/', SUBSTRING( ws.DLC, 3, 2), '/', SUBSTRING( ws.survey_yr, 3, 2 ) ) AS Date,
+                        ws.location,
+                        CONCAT( u.FirstName, ' ', u.LastName ) AS Counselor, 
+                        ws.question1a AS Knowledgable, 
+                        ws.question1b AS Effective, 
+                        ws.question1c AS Organized, 
+                        ws.question1d AS Overall ";
+        } else {
+            $sqla .= "  AVG( ws.question1a ) AS Knowledgable, 
+                        AVG( ws.question1b ) AS Effective, 
+                        AVG( ws.question1c ) AS Organized, 
+                        AVG( ws.question1d ) AS Overall";
+        }
+
+        if( $avgs != NULL ){
+            $sqla .= "  , IF( ( ws.question1a <= 3 OR ws.question1b <= 3 OR ws.question1c <= 3 ) , 1, 0) AS Failed ";
+        }
+
+        $sqla .= "  FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID 
+                        WHERE removed != 1 ";
+
+                        if( !empty( $this->counselorCode ) ){
+                            $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
+                        }
+
+                        if( !empty( $this->monthNumber ) ){
+                            $sqla .= " AND ws.survey_month_num = '". $this->monthNumber ."' ";
+                        }
+
+                        if( !empty( $this->year ) ){
+                            $sqla .= " AND ws.survey_yr = '". $this->year ."' ";
+                        }
+
+                        if( !empty( $this->fy ) ){
+                            $sqla .= " AND ws.fiscal_yr = '". $this->fy ."' ";
+                        }
+                        
+                        if( !empty( $this->fq ) ){
+                            $sqla .= " AND ws.fiscal_qtr = '". $this->fq ."' ";
+                        }
+
+        $result = array(); 
+
+        foreach ( $database->query( $sqla ) as $row ) {
+            array_push( $result, $row );
+        }
+        return $result;
+
+    }
+
     public function get_suvery_report(){
-        echo "hello";
+       $resultBody      = $this->survey_report();
+       $resultBottom    = $this->survey_report('TRUE');
+       return array( $resultBody, $resultBottom );
     }
 
 
