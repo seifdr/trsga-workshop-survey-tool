@@ -658,6 +658,37 @@ class WorkshopSurveyViews
 
     }
 
+    public function singleSurvey() {
+       global $database;
+
+       $result = $this->wsModel->get_single_survey();
+
+       if( !empty( $this->wsModel ) && !empty( $result ) ){
+           ?>
+                
+                <div class='row'>
+                    <div class="col"><h1>TRS Workshop Evaluation # <?php echo htmlentities( $result['id'] ); ?></h1></div>
+                </div>
+                <div class='row'>
+                    <div class="col-12 col-sm-6">Workshop Date:</div>
+                    <div class="col-12 col-sm-6"><?php echo htmlentities( $result['Date'] ); ?></div>
+                </div>
+                <div class='row'>
+                    <div class="col-12 col-sm-6">Workshop Location:</div>
+                    <div class="col-12 col-sm-6"><?php echo htmlentities( $result['location'] ); ?></div>
+                </div>
+                <div class='row'>
+                    <div class="col-12 col-sm-6">Presenter Name:</div>
+                    <div class="col-12 col-sm-6"><?php echo htmlentities( $result['FirstName'] . " " . $result['LastName'] ); ?></div>
+                </div>
+
+           <?php 
+
+           look( $result );
+       }
+
+    }
+
 
 }
 

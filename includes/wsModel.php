@@ -582,6 +582,13 @@ class WorkshopSurvey extends DatabaseObject
        return array( $resultBody, $resultBottom );
     }
 
+    public function get_single_survey(){
+        global $database;
+        $sql = " SELECT *, CONCAT( SUBSTRING( ws.DLC, 1, 2 ), '/', SUBSTRING( ws.DLC, 3, 2), '/', SUBSTRING( ws.survey_yr, 3, 2 ) ) AS Date FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID WHERE ws.id = ". $this->id;
+        return $database->fetch_array( ( $database->query( $sql ) ) );
+
+    }
+
 
 
 }

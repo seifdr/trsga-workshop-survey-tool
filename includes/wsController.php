@@ -35,9 +35,9 @@ class WorkshopSurveyController {
         $this->wsModel->sanitizeAndLoadParams( $params );
     }
 
-    public function single(){
+    public function survey(){
         if( isset( $_GET['sid'] ) && !empty( $_GET['sid'] ) ){
-            $this->wsModel->id = $_GET['id'];
+            $this->wsModel->id = $_GET['sid'];
         }
     }
 }
