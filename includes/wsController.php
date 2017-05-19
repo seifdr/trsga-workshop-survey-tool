@@ -4,9 +4,14 @@ class WorkshopSurveyController {
     
     private $wsModel;
 
+    public $urlAccessibleMethods = array( 'customReport', 'survey' );
 
     function __construct( $wsModel ){
         $this->wsModel = $wsModel;
+    }
+
+    public function is_url_accessible( $name = NULL ){
+        return ( in_array( $name, $this->urlAccessibleMethods ) )? TRUE : FALSE;
     }
 
     public function customReport(){

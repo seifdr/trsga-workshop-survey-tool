@@ -47,12 +47,10 @@ class WorkshopSurvey extends DatabaseObject
     public $fy;
     public $fq;
 
-    // public $current_fy;
-
     public $currentMonth;
     public $currentYear;
 
-    // private $survey;
+    public $workshopTypes = array( 'This is my first TRS event', 'One-on-one Counseling', 'Half-Day Seminar', 'Pre-Retirement Workshop', 'Mid-Career Workshop', 'New Hire Workshop' );
 
     function __construct() {
         

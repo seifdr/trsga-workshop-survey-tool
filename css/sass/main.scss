@@ -50,3 +50,17 @@ table#reportBody {
         color: #fff;
     }
 }
+
+table.indivSurvey {
+    text-align: left;
+    border: 1px solid green;
+
+    th, td {
+        text-align: left;
+        border: 1px solid purple;
+    }
+
+    .indent {
+        padding-left: 2em;
+    }
+}

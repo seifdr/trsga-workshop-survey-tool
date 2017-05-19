@@ -8559,3 +8559,15 @@ table#reportHeading td:nth-child(even) {
 table#reportBody tr.bg-danger {
   color: #fff;
 }
+
+table.indivSurvey {
+  text-align: left;
+  border: 1px solid green;
+}
+table.indivSurvey th, table.indivSurvey td {
+  text-align: left;
+  border: 1px solid purple;
+}
+table.indivSurvey .indent {
+  padding-left: 2em;
+}

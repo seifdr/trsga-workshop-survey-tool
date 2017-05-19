@@ -6,8 +6,13 @@
     $wsController = new WorkshopSurveyController( $wsModel );
     $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
 
+    $proceedWithQuery = FALSE;
+
     if ( isset( $_GET['action'] ) && !empty( $_GET['action'] ) ) {
-        $wsController->{$_GET['action']}();
+            if( $wsController->is_url_accessible( $_GET['action'] ) ){
+                $wsController->{$_GET['action']}();
+                $proceedWithQuery = TRUE;
+            }
     }
 
 ?>
@@ -17,8 +22,12 @@
     </header>
     <body>
         <?php 
-
-            $wsView->singleSurvey();
+            if( $proceedWithQuery ){
+                $wsView->singleSurvey();
+            } else {
+                echo "<p>No survey was found. Please try again.</p>";
+            }
+            
 
         ?>
     </body>
