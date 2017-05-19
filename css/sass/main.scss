@@ -46,18 +46,27 @@ table#reportHeading {
 }
 
 table#reportBody {
+
+    td {
+        text-align: center;
+    }
+
     tr.bg-danger {
         color: #fff;
+
+        a {
+            color: #fff;
+        }
+
     }
 }
 
 table.indivSurvey {
     text-align: left;
-    border: 1px solid green;
 
     th, td {
         text-align: left;
-        border: 1px solid purple;
+        border: none;
     }
 
     .indent {

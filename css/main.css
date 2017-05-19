@@ -8556,17 +8556,22 @@ table#reportHeading td:nth-child(even) {
   text-align: left;
 }
 
+table#reportBody td {
+  text-align: center;
+}
 table#reportBody tr.bg-danger {
+  color: #fff;
+}
+table#reportBody tr.bg-danger a {
   color: #fff;
 }
 
 table.indivSurvey {
   text-align: left;
-  border: 1px solid green;
 }
 table.indivSurvey th, table.indivSurvey td {
   text-align: left;
-  border: 1px solid purple;
+  border: none;
 }
 table.indivSurvey .indent {
   padding-left: 2em;

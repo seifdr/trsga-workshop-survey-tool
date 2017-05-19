@@ -456,11 +456,11 @@ class WorkshopSurveyViews
             $fiscal_years = $this->wsModel->find_all_fiscal_years();
 
         ?>
-            <form class="form-inline">
-                <!--<label class="mr-sm-2" for="inlineFormCustomSelect">Preference</label>-->
+            <form class="form-inline" method="get" action="report.php" >
+                <input type="hidden" name="action" value="customReport" />
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
-                    <option>All Counselors</option>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
+                    <option value="all" >All Counselors</option>
                     <optgroup label="Active">
                     <?php 
 
@@ -485,8 +485,8 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
-                    <option>All Months</option>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="month" >
+                    <option value="all">All Months</option>
                     <optgroup label="By Month">
                     <?php 
                     
@@ -496,7 +496,7 @@ class WorkshopSurveyViews
 
                         if( empty( $this->wsModel->fq ) && ( !empty( $this->wsModel->monthNumber ) && ( $this->wsModel->monthNumber == $mn ) ) ) { echo " selected "; }
 
-                        echo " value=\"{$i}\">{$months[$i]}</option>";
+                        echo " value=\"". ( $i + 1 ) ."\">{$months[$i]}</option>";
                     }
                     
                     ?>
@@ -509,15 +509,15 @@ class WorkshopSurveyViews
                         
                         if( !empty( $this->wsModel->fq ) && ($i + 1) == $this->wsModel->fq ){ echo " selected "; }
 
-                        echo " value=\"{$i}\">{$fy_quarters[$i]}</option>";
+                        echo " value=\"fq". ( $i + 1 ) ."\">{$fy_quarters[$i]}</option>";
                     }
 
                     ?>    
                     </optgroup>
                 </select>
 
-                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
-                    <option>All Years</option>
+                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="yr">
+                    <option value="all" >All Years</option>
                     <?php 
                         foreach ($years as $year ) {
                             echo  "<option ";
@@ -531,8 +531,8 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
-                    <option>All FY Years</option>
+                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="fy">
+                    <option value="all" >All FY Years</option>
                     <?php 
                         foreach ($fiscal_years as $fyear ) {
                             echo  "<option ";
@@ -541,12 +541,12 @@ class WorkshopSurveyViews
                                 echo " selected ";
                             }
                             
-                            echo " value=\"{$fyear}\">{$fyear}</option>";
+                            echo " value=\"{$fyear}\">FY {$fyear}</option>";
                         }
                     ?>
                 </select>
 
-                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect">
+                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
                     <option value="25" >25 Surveys</option>
                     <option value="50" >50 Surveys</option>
                     <option value="100" >100 Surveys</option>
@@ -564,8 +564,6 @@ class WorkshopSurveyViews
         $result = $this->wsModel->get_survey_report_header_numbers();
 
         ?>
-
-            <h1>Workshop Survey Report</h1>
             <p><strong>Returned all surveys collected for all counselors in April 2017</strong></p>
             <div class="row mb-4" >
                 <div class="col-6 col-sm-4 col-md-3" >Show only fails</div>
@@ -640,7 +638,7 @@ class WorkshopSurveyViews
                                 <td>{$row['Effective']}</td>
                                 <td>{$row['Organized']}</td>
                                 <td>{$row['Overall']}</td>
-                                <td>Full Surveys</td>
+                                <td><a href='survey.php?action=survey&sid={$row['id']}' title='View Full Survey' >Full Survey</a></td>
                             </tr>";
                     }
 
@@ -668,14 +666,13 @@ class WorkshopSurveyViews
                 
            <div class="container">
                 <div class="row">
-                    <div class="col col-sm-7">
-                        <h1>TRS Workshop Evaluation # <?php echo htmlentities( $result['id'] ); ?></h1>
+                    <div class="col col-sm-12 col-md-10 col-lg-8 col-offset-lg-2">
                             <div class="row">
-                                <div class="col col-sm-8">
+                                <div class="col col-sm-8 col-md-7">
                                     <table class='table indivSurvey'>
                                         <tbody>
                                             <tr>
-                                                <th>Workhop Date</th>
+                                                <th>Workshop Date</th>
                                                 <td><?php echo htmlentities( $result['Date'] ); ?></td>
                                             </tr>
                                             <tr>
@@ -683,36 +680,38 @@ class WorkshopSurveyViews
                                                 <td><?php echo htmlentities( $result['location'] ); ?></td>
                                             </tr>
                                             <tr>
-                                                <th>TRS Presentor Name:</th>
+                                                <th>TRS Presentor Name</th>
                                                 <td><?php echo htmlentities( $result['FirstName'] . " " . $result['LastName'] ); ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                    <table class='table indivSurvey'>
-                            <tbody>
-                                <tr>
-                                    <th colspan="2">1.) Please indicate your impression of the statements listed below:</th>
-                                </tr>
-                                <tr>
-                                    <td class="indent">The presenter was knowledgable</th>
-                                    <td><?php echo htmlentities( $result['question1a'] ); ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="indent">The presenter has an effective presentation style</th>
-                                    <td><?php echo htmlentities( $result['question1b'] ); ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="indent">The workshop content was organized and easy to follow</th>
-                                    <td><?php echo htmlentities( $result['question1c'] ); ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="indent">Please rate the workshop overall</th>
-                                    <td><?php echo htmlentities( $result['question1d'] ); ?></td>
-                                </tr>
-                        </tbody>
-                    </table>
+                    <p><strong>1.) Please indicate your impression of the statements listed below:</strong></p>
+                    <div class="row">
+                        <div class="col-12 col-md-10 col-lg-9">
+                            <table class='table indivSurvey'>
+                                    <tbody>
+                                        <tr>
+                                            <td class="indent">The presenter was knowledgable</th>
+                                            <td><?php echo htmlentities( $result['question1a'] ); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="indent">The presenter has an effective presentation style</th>
+                                            <td><?php echo htmlentities( $result['question1b'] ); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="indent">The workshop content was organized and easy to follow</th>
+                                            <td><?php echo htmlentities( $result['question1c'] ); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="indent">Please rate the workshop overall</th>
+                                            <td><?php echo htmlentities( $result['question1d'] ); ?></td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </div> <!-- close col -->
+                    </div> <!-- close row -->
                     <p><strong>If any, which TRS events have you attended in the past?</strong></p>
                     <p><?php 
                         $eventsAttended = explode(',', $result['question2'] );
@@ -726,30 +725,31 @@ class WorkshopSurveyViews
                         } else {
                             echo "<p>No reponse given.</p>";
                         }?></p>
-
-                    <table class='table indivSurvey'>
-                            <tbody>
-                                <tr>
-                                    <th colspan="2">3.) After attending the Group Counseling event, has your understanding of the following topics increased or stayed the same?</th>
-                                </tr>
-                                <tr>
-                                    <td class="indent">Eleigibility Options</th>
-                                    <td><?php echo htmlentities( $result['question3a'] ); ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="indent">Plans of Retirement/Options</th>
-                                    <td><?php echo htmlentities( $result['question3b'] ); ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="indent">Beneficiary Information</th>
-                                    <td><?php echo htmlentities( $result['question3c'] ); ?></td>
-                                </tr>
-                                <tr>
-                                    <td class="indent">Service Credit</th>
-                                    <td><?php echo htmlentities( $result['question3d'] ); ?></td>
-                                </tr>
-                        </tbody>
-                    </table>
+                    <p><strong>3.) After attending the Group Counseling event, has your understanding of the following topics increased or stayed the same?</strong></p>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <table class='table indivSurvey'>
+                                <tbody>
+                                    <tr>
+                                        <td class="indent">Eligibility Options</th>
+                                        <td><?php echo htmlentities( $result['question3a'] ); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="indent">Plans of Retirement/Options</th>
+                                        <td><?php echo htmlentities( $result['question3b'] ); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="indent">Beneficiary Information</th>
+                                        <td><?php echo htmlentities( $result['question3c'] ); ?></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="indent">Service Credit</th>
+                                        <td><?php echo htmlentities( $result['question3d'] ); ?></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                     <p><strong>The knowledge and skills I gained from this group counseling will be useful when applying for retirement.</strong></p>
                     <p class="indent"><?php echo ( $result['question4'] )? "Yes" : "No"; ?></p>

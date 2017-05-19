@@ -18,24 +18,48 @@ class WorkshopSurveyController {
         $params = array();
 
         if( isset( $_GET['counselor'] ) && !empty( $_GET['counselor'] ) ){
-            $params['counselorCode'] = strtoupper( $_GET['counselor'] );
+            if( ( $_GET['counselor'] ) != 'all' ){
+                $params['counselorCode'] = strtoupper( $_GET['counselor'] );
+            }
         }
 
         if( isset( $_GET['month'] ) && !empty( $_GET['month'] ) ){
-            $params['monthNumber'] = $_GET['month'];
+            if( ( $_GET['month'] ) != 'all' ){
+                if( ( substr( $_GET['month'], 0, 2 ) == "fq" ) ){
+                    $params['fq'] = substr( $_GET['month'], 2, 4 );
+                } else {
+                    $params['monthNumber'] = $_GET['month'];
+                }
+            }
         }
 
-        if( isset( $_GET['year'] ) && !empty( $_GET['year'] ) ){
-            $params['year'] = $_GET['year'];
-        }
-
-        if( isset( $_GET['fy'] ) && !empty( $_GET['fy'] ) ){
-            $params['fy'] = $_GET['fy'];
+        if( isset( $_GET['yr'] ) && !empty( $_GET['yr'] ) ){
+            if( ( $_GET['yr'] ) != 'all' ){
+                $params['year'] = $_GET['yr'];
+            }
         }
 
         if( isset( $_GET['fq'] ) && !empty( $_GET['fq'] ) ){
             $params['fq'] = $_GET['fq'];
         }
+
+        if( isset( $_GET['fy'] ) && !empty( $_GET['fy'] ) ){
+            if( ( $_GET['fy'] ) != 'all' ){
+                $params['fy'] = $_GET['fy'];
+            }
+        }
+
+        if( isset( $_GET['offset'] ) && !empty( $_GET['offset'] ) ){
+            if( ( $_GET['offset'] ) != 'all' ){
+                $params['offset'] = $_GET['offset'];
+            }
+        }
+
+        if( isset( $_GET['block'] ) && !empty( $_GET['block'] ) ){
+            $params['block'] = $_GET['block'];
+        }
+
+        //look( $params );
 
         $this->wsModel->sanitizeAndLoadParams( $params );
     }

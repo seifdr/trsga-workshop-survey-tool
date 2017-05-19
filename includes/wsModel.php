@@ -46,6 +46,9 @@ class WorkshopSurvey extends DatabaseObject
     public $year;
     public $fy;
     public $fq;
+    //for pagination
+    public $offset;
+    public $block;
 
     public $currentMonth;
     public $currentYear;
@@ -63,7 +66,7 @@ class WorkshopSurvey extends DatabaseObject
     }
 
     private function loadParams( $params ){
-        $allowedKeys = array( 'counselorCode', 'monthNumber', 'year', 'fy', 'fq' );
+        $allowedKeys = array( 'counselorCode', 'monthNumber', 'year', 'fy', 'fq', 'offset', 'block' );
 
         foreach ($params as $key => $value) {
             if(  in_array( $key, $allowedKeys ) ){
@@ -515,14 +518,14 @@ class WorkshopSurvey extends DatabaseObject
 
     }
 
-    public function survey_report( $avgs = NULL ){
+    public function survey_report( $avgs = FALSE ){
         global $database;
 
         date_default_timezone_set('America/Chicago');
 
         $sqla = " SELECT ";
 
-        if( $avgs != NULL ){
+        if( $avgs ){
             $sqla .= "  ws.id, 
                         CONCAT( SUBSTRING( ws.DLC, 1, 2 ), '/', SUBSTRING( ws.DLC, 3, 2), '/', SUBSTRING( ws.survey_yr, 3, 2 ) ) AS Date,
                         ws.location,
@@ -538,12 +541,11 @@ class WorkshopSurvey extends DatabaseObject
                         AVG( ws.question1d ) AS Overall";
         }
 
-        if( $avgs != NULL ){
+        if( $avgs ){
             $sqla .= "  , IF( ( ws.question1a <= 3 OR ws.question1b <= 3 OR ws.question1c <= 3 ) , 1, 0) AS Failed ";
         }
 
-        $sqla .= "  FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID 
-                        WHERE removed != 1 ";
+        $sqla .= "  FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID WHERE removed != 1 ";
 
                         if( !empty( $this->counselorCode ) ){
                             $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
@@ -564,6 +566,30 @@ class WorkshopSurvey extends DatabaseObject
                         if( !empty( $this->fq ) ){
                             $sqla .= " AND ws.fiscal_qtr = '". $this->fq ."' ";
                         }
+
+                        if( !empty( $this->offset ) && ($this->offset != "all") && $avgs ) {	
+                            //Pagination 
+                            //1. the current page number ($current_page)
+                            $page = !empty( $this->block ) ? (int)$this->block : 1;
+                            
+                            //2. record per page ($per_page)
+                            $per_page = $this->offset;
+
+                            //3. total record count ($total_count)
+                            // $total_count = outreachSurveys::count_all();
+                            $countSQL = "SELECT count(*) as total_count FROM (". $sqla .") AS t";
+
+                            $total_count = mysqli_fetch_object( $database->query( $countSQL ) )->total_count;
+                                                
+                            $pagination = new Pagination($page, $per_page, $total_count);
+                        }
+        
+
+                        if( !empty( $this->offset ) && $this->offset != "all" && $avgs ){
+                            //Add Pagination SQL
+                            $sqla .= " LIMIT {$pagination->per_page} OFFSET {$pagination->offset()}";
+                        }
+
 
         $result = array(); 
 
@@ -588,7 +614,49 @@ class WorkshopSurvey extends DatabaseObject
     }
 
 
-
+    // public function pagination_link($selected_counselor, $selected_month, $selected_year, $selected_fy_year, $selected_offset, $resultArray, $nextOrPrevious){
+			
+	// 	$paginationLink = "outreach_data.php?";
+								
+	// 	if($selected_counselor){
+	// 		$paginationLink .= "counselor=" . $selected_counselor;
+	// 		$andCounts++; 
+	// 	}
+								
+	// 	if($selected_month){
+	// 		if($selected_month != "all"){
+	// 			$paginationLink .= ($andCounts >= 1) ? "&" : "";
+	// 			$paginationLink .= "month=" . $selected_month;
+	// 			$andCounts++; 	
+	// 		}
+	// 	}
+								
+	// 	if($selected_year){
+	// 		$paginationLink .= ($andCounts >= 1) ? "&" : "";
+	// 		$paginationLink .= "year=". $selected_year;
+	// 		$andCounts++;
+	// 	}
+								
+	// 	if($selected_fy_year){
+	// 		$paginationLink .= ($andCounts >= 1) ? "&" : "";
+	// 		$paginationLink .= "fyYear=" . $selected_fy_year;
+	// 		$andCounts++; 
+	// 	}
+								
+	// 	if($selected_offset){
+	// 		$paginationLink .= ($andCounts >= 1) ? "&" : "";
+	// 		$paginationLink .= "offset=" . $selected_offset;
+	// 		$andCounts++; 
+	// 	}
+			
+	// 	if($nextOrPrevious == "next"){
+	// 		$paginationLink .= "&surveyblock=". $resultArray['paginationBlockArray']['paginationNextPage'];
+	// 	} else {
+	// 		$paginationLink .= "&surveyblock=". $resultArray['paginationBlockArray']['paginationPreviousPage'];
+	// 	}						
+		
+	// 	return $paginationLink;
+	// }
 }
 
 //$wsModel = new WorkshopSurvey();
