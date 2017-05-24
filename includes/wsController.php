@@ -4,7 +4,7 @@ class WorkshopSurveyController {
     
     private $wsModel;
 
-    public $urlAccessibleMethods = array( 'customReport', 'survey' );
+    public $urlAccessibleMethods = array( 'customReport', 'survey', 'prepareDelete', 'completeDelete' );
 
     function __construct( $wsModel ){
         $this->wsModel = $wsModel;
@@ -67,6 +67,18 @@ class WorkshopSurveyController {
     public function survey(){
         if( isset( $_GET['sid'] ) && !empty( $_GET['sid'] ) ){
             $this->wsModel->id = $_GET['sid'];
+        }
+    }
+
+    public function prepareDelete(){
+        if( isset( $_POST['sid'] ) && !empty( $_POST['sid'] ) ){
+            $this->wsModel->id = $_POST['sid'];
+        }
+    }
+
+    public function completeDelete(){
+        if( isset( $_POST['sid'] ) && !empty( $_POST['sid'] ) ){
+            $this->wsModel->id = $_POST['sid'];
         }
     }
 }

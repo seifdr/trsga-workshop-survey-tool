@@ -71,6 +71,7 @@ class WorkshopSurvey extends DatabaseObject
         foreach ($params as $key => $value) {
             if(  in_array( $key, $allowedKeys ) ){
                 $this->$key = $value;
+                $this->params[$key] = $value;
             }
         }
 
@@ -91,7 +92,7 @@ class WorkshopSurvey extends DatabaseObject
 
         $sql = "SELECT ROUND( AVG( question1d ), 2 ) as questDavg 
                     FROM workshopSurvey17 
-                    WHERE fiscal_yr = '". $this->fy ."'
+                    WHERE fiscal_yr = '". $this->fy ." AND removed != 1'
                ";
 
         $result = array(); 
@@ -109,9 +110,9 @@ class WorkshopSurvey extends DatabaseObject
 
         date_default_timezone_set('America/Chicago');
 
-        $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, u.FirstName, u.LastName, u.surveyID 
+        $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, ws.removed, u.FirstName, u.LastName, u.surveyID 
                     FROM workshopSurvey17 AS ws LEFT OUTER JOIN users AS u ON ws.rep_code = u.surveyID 
-                        WHERE removed != 1 ";
+                        WHERE ws.removed != '1' ";
 
                         if( !empty( $this->counselorCode ) ){
                             $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
@@ -143,12 +144,14 @@ class WorkshopSurvey extends DatabaseObject
                     IF( workshopSurvey17.survey_yr IS NULL, ". date('Y') .", workshopSurvey17.survey_yr ) AS survey_yr, 
                     IF( workshopSurvey17.DLC IS NULL, CONCAT( DATE_FORMAT( CURRENT_DATE(), '%m' ), DATE_FORMAT( CURRENT_DATE(), '%d' ) , 'XXXX' ), workshopSurvey17.DLC ) AS DLC, 
                     IF( workshopSurvey17.rep_code IS NULL, users.surveyID, workshopSurvey17.rep_code ) AS rep_code, 
+                    workshopSurvey17.removed,
                     users.FirstName, 
                     users.LastName, 
                     users.surveyID 
                         FROM workshopSurvey17 RIGHT OUTER JOIN users ON workshopSurvey17.rep_code = users.surveyID 
                             WHERE ( workshopSurvey17.fiscal_yr = '". $this->fy ."' 
                                 OR workshopSurvey17.fiscal_yr IS NULL ) 
+                                    AND ( workshopSurvey17.removed != 1 || workshopSurvey17.removed IS NULL ) 
                                     AND users.active = 1";
 
                                      if( !empty( $this->counselorCode ) ){
@@ -518,14 +521,16 @@ class WorkshopSurvey extends DatabaseObject
 
     }
 
-    public function survey_report( $avgs = FALSE ){
+    public function survey_report( $avgs = FALSE, $singleSurvey = FALSE ){
         global $database;
+
+        $avgs = ( $avgs == TRUE )? (bool) TRUE : (bool) FALSE;
 
         date_default_timezone_set('America/Chicago');
 
         $sqla = " SELECT ";
 
-        if( $avgs ){
+        if( !$avgs ){
             $sqla .= "  ws.id, 
                         CONCAT( SUBSTRING( ws.DLC, 1, 2 ), '/', SUBSTRING( ws.DLC, 3, 2), '/', SUBSTRING( ws.survey_yr, 3, 2 ) ) AS Date,
                         ws.location,
@@ -541,11 +546,15 @@ class WorkshopSurvey extends DatabaseObject
                         AVG( ws.question1d ) AS Overall";
         }
 
-        if( $avgs ){
+        if( !$avgs ){
             $sqla .= "  , IF( ( ws.question1a <= 3 OR ws.question1b <= 3 OR ws.question1c <= 3 ) , 1, 0) AS Failed ";
         }
 
         $sqla .= "  FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID WHERE removed != 1 ";
+
+                        if( $singleSurvey ){
+                            $sqla .= " AND ws.id='". $this->id ."' ";
+                        }
 
                         if( !empty( $this->counselorCode ) ){
                             $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
@@ -559,7 +568,7 @@ class WorkshopSurvey extends DatabaseObject
                             $sqla .= " AND ws.survey_yr = '". $this->year ."' ";
                         }
 
-                        if( !empty( $this->fy ) ){
+                        if( !empty( $this->fy ) && ( $singleSurvey == FALSE ) ){
                             $sqla .= " AND ws.fiscal_yr = '". $this->fy ."' ";
                         }
                         
@@ -590,7 +599,6 @@ class WorkshopSurvey extends DatabaseObject
                             $sqla .= " LIMIT {$pagination->per_page} OFFSET {$pagination->offset()}";
                         }
 
-
         $result = array(); 
 
         foreach ( $database->query( $sqla ) as $row ) {
@@ -601,8 +609,9 @@ class WorkshopSurvey extends DatabaseObject
     }
 
     public function get_suvery_report(){
-       $resultBody      = $this->survey_report();
-       $resultBottom    = $this->survey_report('TRUE');
+       $resultBody      = $this->survey_report(FALSE);
+       $resultBottom    = $this->survey_report(TRUE);
+
        return array( $resultBody, $resultBottom );
     }
 
@@ -611,6 +620,15 @@ class WorkshopSurvey extends DatabaseObject
         $sql = " SELECT *, CONCAT( SUBSTRING( ws.DLC, 1, 2 ), '/', SUBSTRING( ws.DLC, 3, 2), '/', SUBSTRING( ws.survey_yr, 3, 2 ) ) AS Date FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID WHERE ws.id = ". $this->id;
         return $database->fetch_array( ( $database->query( $sql ) ) );
 
+    }
+
+    public function deleteSurvey(){
+        //actually just marking it as removed
+        global $database;
+        $sql = "UPDATE workshopSurvey17 SET removed = 1 WHERE id='". $database->escape_values( $this->id ) ."' AND removed != 1";
+        $database->query( $sql );
+        return($database->affected_rows()==1) ? true : false;
+        //return $database->fetch_array( $database->query( $sql ) );
     }
 
 

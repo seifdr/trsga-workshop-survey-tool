@@ -16,11 +16,16 @@
     </header>
     <body>
         <div class="container">
-            <div class="row mb-4">
+            <div class="row">
                 <div class="col">
-                    <h1>TRS Workshop Survey Database - FY <?php echo $wsView->current_fy; ?></h1>
+                    <h1>Workshop Overview - FY <?php echo $wsView->current_fy; ?></h1>
                 </div>
             </div>
+            <div class="row">
+                <div class="col mb-4">
+                    <a href="report.php">View Workshop Survey Data</a> | <a href="#">Remove Survey</a>
+                </div>
+            </div>     
             <div class="row mb-4">
                 <div class="col-12 col-sm-6">
                     <h5>FY Workshop Rating</h5>

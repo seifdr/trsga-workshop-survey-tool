@@ -15,6 +15,21 @@ class WorkshopSurveyViews
     public $currentMonth;
     public $currentYear;
 
+    public $monthNameToNum = array(
+        '1' => 'January',
+        '2' => 'February',
+        '3' => 'March',
+        '4' => 'April',
+        '5' => 'May',
+        '6' => 'June',
+        '7' => 'July',
+        '8' => 'August',
+        '9' => 'September',
+        '10' => 'October',
+        '11' => 'Novemebr',
+        '12' => 'December'
+    );
+
     function __construct( $wsController, $wsModel )
     {
 
@@ -559,12 +574,12 @@ class WorkshopSurveyViews
         <?php 
     }
 
-    public function report_heading( $counselor = NULL, $month = NULL, $year = NULL, $fyear = NULL, $survey = NULL ) {
+    public function report_heading( ) {
         global $database;
         $result = $this->wsModel->get_survey_report_header_numbers();
 
         ?>
-            <p><strong>Returned all surveys collected for all counselors in April 2017</strong></p>
+            <p><strong><?php echo $this->sql_to_text(); ?></strong></p>
             <div class="row mb-4" >
                 <div class="col-6 col-sm-4 col-md-3" >Show only fails</div>
                 <div class="col-6 col-sm-4 col-md-3" >Download CSV</div>
@@ -605,8 +620,8 @@ class WorkshopSurveyViews
 
         $result = $this->wsModel->get_suvery_report();
 
-        $resultBody     = $result[1];
-        $resultBottom   = $result[0];
+        $resultBody     = $result[0];
+        $resultBottom   = $result[1];
 
         if( !empty( $resultBody ) AND count( $resultBody[0] ) > 0 ){
 
@@ -628,22 +643,8 @@ class WorkshopSurveyViews
                 <?php 
 
                     foreach ($resultBody as $row) {
-                        echo ( $row['Failed'] )? "<tr class='bg-danger'>" : "<tr>";
-                        
-                        echo    "<td>{$row['id']}</td>
-                                <td>{$row['Date']}</td>
-                                <td>{$row['location']}</td>
-                                <td>{$row['Counselor']}</td>
-                                <td>{$row['Knowledgable']}</td>
-                                <td>{$row['Effective']}</td>
-                                <td>{$row['Organized']}</td>
-                                <td>{$row['Overall']}</td>
-                                <td><a href='survey.php?action=survey&sid={$row['id']}' title='View Full Survey' >Full Survey</a></td>
-                            </tr>";
+                        echo $this->output_survey_row( $row );
                     }
-
-                   
-
                 ?>
             </tbody>
         </table>
@@ -652,9 +653,67 @@ class WorkshopSurveyViews
         } else {
             echo "<p>No results found</p>";
         } 
-        
-
     }
+
+    private function output_survey_row( $row ){
+        $return = ( $row['Failed'] )? "<tr class='bg-danger'>" : "<tr>";
+                        
+        $return .= "<td>{$row['id']}</td>
+                <td>{$row['Date']}</td>
+                <td>{$row['location']}</td>
+                <td>{$row['Counselor']}</td>
+                <td>{$row['Knowledgable']}</td>
+                <td>{$row['Effective']}</td>
+                <td>{$row['Organized']}</td>
+                <td>{$row['Overall']}</td>
+                <td><a class='indivSurvey' data-id=\"{$row['id']}\" href='survey.php?action=survey&sid={$row['id']}' title='View Full Survey' >Full Survey</a></td>
+            </tr>";
+        return $return;
+    }
+
+    public function sql_to_text(){
+        global $database;
+
+        $p = $this->wsModel->params;
+        
+        $text = "Returned all surveys collect for ";
+
+        if( isset( $p['counselorCode'] ) && !empty( $p['counselorCode'] ) ){
+            $userModel = new User;
+            
+            $sql = "SELECT FirstName, LastName FROM users WHERE surveyID = \"". $database->escape_values( $p['counselorCode'] ) ."\"";
+            $counselor = $userModel->find_by_sql( $sql );
+            $text .= $counselor[0]->FirstName . " " . $counselor[0]->LastName . " ";
+        } else {
+            $text .= "all counselors ";
+        }
+
+        $inCounter = FALSE;
+
+        if( isset( $p['monthNumber'] ) && !empty( $p['monthNumber'] ) ){
+            $text .= " in " . $this->monthNameToNum[ $p['monthNumber'] ] . " ";
+            $inCounter = TRUE;
+        } elseif( isset( $p['fq'] ) && !empty( $p['fq'] ) ){
+            $text .= " in fiscal quarter " . htmlspecialchars( $p['fq'] ) .", ";
+        }
+
+        if( isset( $p['year'] ) && !empty( $p['year'] ) ){
+            if( !$inCounter ){ $text .= "in "; }
+            if( isset( $p['fq'] ) && !empty( $p['fq'] ) ){ $text .= " year"; }
+            $text .=  $p['year'];
+            $inCounter = TRUE;
+        }
+
+        if( isset( $p['fy'] ) && !empty( $p['fy'] ) ){
+            if( !$inCounter ){ $text .= "in "; }
+            if( isset( $p['year'] ) && !empty( $p['year'] ) ){ $text .= ", and"; }
+            $text .=  " FY " . $p['fy'] . " ";
+        } elseif ( $this->wsModel->fy && !empty( $this->wsModel->fy ) ){
+             $text .=  " FY " . $this->wsModel->fy . " ";
+        }
+
+        return $text;
+    }    
 
     public function singleSurvey() {
        global $database;
@@ -666,7 +725,7 @@ class WorkshopSurveyViews
                 
            <div class="container">
                 <div class="row">
-                    <div class="col col-sm-12 col-md-10 col-lg-8 col-offset-lg-2">
+                    <div class="col">
                             <div class="row">
                                 <div class="col col-sm-8 col-md-7">
                                     <table class='table indivSurvey'>
@@ -714,12 +773,13 @@ class WorkshopSurveyViews
                     </div> <!-- close row -->
                     <p><strong>If any, which TRS events have you attended in the past?</strong></p>
                     <p><?php 
+
                         $eventsAttended = explode(',', $result['question2'] );
                         if( count( $eventsAttended ) > 0 ){
                               $cnt = 0;
                               foreach ( explode(',', $result['question2'] ) as $value ) {
                                         if( $cnt > 0 ){ echo ", "; }
-                                        echo $this->wsModel->workshopTypes[ $value ];
+                                        echo $this->wsModel->workshopTypes[ ( $value - 1 ) ];
                                         $cnt++;
                               }
                         } else {
@@ -779,6 +839,90 @@ class WorkshopSurveyViews
            <?php 
        }
 
+    }
+
+    public function deleteSurvey(){
+        ?>
+
+            <div class="row">
+                <div class="col">
+                    <h1 class="mb-4">Remove a Workshop Survey</h1>
+                        <div class="row justify-content-center" >
+                            <div class="col">
+                                <?php
+                                    if( ( isset( $_POST['action'] ) && !empty( $_POST['action'] ) ) && ( isset( $_POST['sid'] ) && !empty( $_POST['sid'] ) ) ){
+
+                                        if( $_POST['action'] == 'prepareDelete'){
+
+                                            $result = $this->wsModel->survey_report( false, TRUE );
+                                            
+                                            if( empty( $result[0] ) ){
+                                                $this->alert('<strong>No survey found.</strong> Please try again.');
+                                            }
+                                                ?>
+                                                <table class='table table-striped' id="reportbody">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Suvery ID</th>
+                                                            <th>Event Date</th>
+                                                            <th>Location</th>
+                                                            <th>Counselor</th>
+                                                            <th>Knowledgable</th>
+                                                            <th>Effective</th>
+                                                            <th>Organized</th>
+                                                            <th>Overall</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    <?php echo $this->output_survey_row( $result[0] ); ?>
+                                                    </tbody>
+                                                </table>
+                                                <div class="row justify-content-center" >
+                                                    <div class="col-4">
+                                                        <form class="form-inline row" method="post" action="remove.php">
+                                                            <input type="hidden" name="action" value="completeDelete" />
+                                                            <input type="hidden" name="sid" value="<?php echo $_POST['sid']; ?>" />
+                                                            <button id="surveyDelete" type="submit" class="btn btn-primary col m-2">Delete Survey #<?php echo $this->wsModel->id; ?></button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                
+
+                                                <?php
+                                        } elseif ( $_POST['action'] == 'completeDelete' ){
+                                            echo "complete delete";
+                                            if( $this->wsModel->deleteSurvey() ){
+                                               echo $this->success('<strong>Success!</strong> Suvery #' . $this->wsModel->id . " was successfully deleted.");
+                                            } else {
+                                               echo $this->alert('<strong>Error# 0001</strong> There was a problem deleting the survey. Please try again.');
+                                            }
+                                            echo "<p><a href='../ws'>Return to the workshop survey dashboard.</a></p>";
+                                        }
+                                    } else {
+                                ?>
+                                            <p>Type in a survey number below and click search. Survey number / ID must be a number.</p>
+                                            <form class="form-inline row" method="post" action="remove.php">
+                                                <label class="sr-only" for="inlineFormInput">Survey ID</label>
+                                                <input type="text" class="form-control col-9 ml-3" id="inlineFormInput" placeholder="Survey ID" name="sid" >
+                                                <input type="hidden" name="action" value="prepareDelete" />
+                                                <button type="submit" class="btn btn-primary col-2 ml-2">Submit</button>
+                                            </form>
+                                    
+                            <?php } ?>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+
+        <?php
+    }
+
+    private function alert( $message = ''){
+        return "<div class='alert alert-danger' role='alert'>". $message ."</div>";
+    }
+
+    private function success( $message = ''){
+        return "<div class='alert alert-success' role='alert'>". $message ."</div>";
     }
 
 

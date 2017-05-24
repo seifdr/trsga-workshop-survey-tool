@@ -31,13 +31,13 @@ var themeName 	= json.read('./package.json').get('themeName');
 var themeDir 	= '../' + themeName;
 
 
-gulp.task('init', function(){
+// gulp.task('init', function(){
 
-	fs.mkdirSync( themeDir, 765, true );
+// 	fs.mkdirSync( themeDir, 765, true );
 
-	fse.copySync( 'theme-boilerplate', themeDir + '/' );
+// 	fse.copySync( 'theme-boilerplate', themeDir + '/' );
 
-});
+// });
 
 
 //Here is a handy plumber setting that we will use when an error occurs in any of the tasks
@@ -77,16 +77,21 @@ gulp.task('sass', function(){
 gulp.task('js', function(){
 
 	var needScripts = [
-		'js/src/*.js',
+		//'js/src/*.js',
+		'js/src/tether.min.js',
+		'js/src/jquery-3.2.1.min.js',
+		'js/src/bootstrap.min.js',
+		'js/custom/*.js'
 	];
+
 	// gulp.src('js/src/**/*.js')
 	gulp.src( needScripts )
 		.pipe( plumber( plumberErrorHandler ) )
-		.pipe( jshint() )
-			.pipe(jshint.reporter('fail'))
-			.pipe( babel( {
-           		presets: ['es2015']
-        	}))
+		//.pipe( jshint() )
+			//.pipe(jshint.reporter('fail'))
+			// .pipe( babel( {
+           	// 	presets: ['es2015']
+        	// }))
 			.pipe( concat('main.js') )
 			.pipe( gulp.dest('js') )
 			.pipe( reload({stream:true}) );
@@ -127,7 +132,9 @@ gulp.task('watch', function(){
 
 	gulp.watch('css/sass/**/*.scss', ['sass'] );
 
-	gulp.watch('js/src/**/*.js', ['js'] );
+	gulp.watch('js/custom/*.js', ['js'] );
+
+	gulp.watch('js/src/*.js', ['js'] );
 
 	// gulp.watch( 'img/src/*.{png, jpg, gif}', ['img'] );
 
