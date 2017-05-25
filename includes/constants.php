@@ -8,7 +8,7 @@
             define("DB_HOSTNAME", "localhost");
             define("DB_USERNAME", "dseif");
             define("DB_NAME", "workshopSurveyDB");   
-			define("DB_PASS", "");
+			define("DB_PASS", "d07241986S!");
 			
             // $hostname = "173.201.39.68";
             // $username = "trsgaDBadmin";

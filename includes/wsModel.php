@@ -49,6 +49,8 @@ class WorkshopSurvey extends DatabaseObject
     //for pagination
     public $offset;
     public $block;
+    public $paginationObj;
+
 
     public $currentMonth;
     public $currentYear;
@@ -231,10 +233,6 @@ class WorkshopSurvey extends DatabaseObject
             array_push( $result, $row );
         }
 
-        if( $type == 'satPers' ){
-            //look( $result );
-        }
-
         return $result;
     }
 
@@ -334,11 +332,7 @@ class WorkshopSurvey extends DatabaseObject
     
     
     
-    
-    
-    
-    
-    
+
     
     // SURVEY REPORT FUNCTIONS
 	public function find_current_month($number = FALSE){
@@ -576,7 +570,13 @@ class WorkshopSurvey extends DatabaseObject
                             $sqla .= " AND ws.fiscal_qtr = '". $this->fq ."' ";
                         }
 
-                        if( !empty( $this->offset ) && ($this->offset != "all") && $avgs ) {	
+                        //ORDER BY DATE 
+                        if( !$avgs ){
+                            $sqla .= " ORDER BY Date DESC ";
+                        }
+
+                        if( !empty( $this->offset ) && ($this->offset != "all") && !$avgs ) {
+
                             //Pagination 
                             //1. the current page number ($current_page)
                             $page = !empty( $this->block ) ? (int)$this->block : 1;
@@ -589,21 +589,23 @@ class WorkshopSurvey extends DatabaseObject
                             $countSQL = "SELECT count(*) as total_count FROM (". $sqla .") AS t";
 
                             $total_count = mysqli_fetch_object( $database->query( $countSQL ) )->total_count;
-                                                
-                            $pagination = new Pagination($page, $per_page, $total_count);
+
+                            $this->paginationObj = new WsPagination($page, $per_page, $total_count, $this);
+                        }
+    
+                        if( !empty( $this->offset ) && $this->offset != "all" && !$avgs ){
+                            //Add Pagination SQL
+                            $sqla .= " LIMIT {$this->paginationObj->per_page} OFFSET {$this->paginationObj->offset()}";
                         }
         
-
-                        if( !empty( $this->offset ) && $this->offset != "all" && $avgs ){
-                            //Add Pagination SQL
-                            $sqla .= " LIMIT {$pagination->per_page} OFFSET {$pagination->offset()}";
-                        }
-
         $result = array(); 
 
         foreach ( $database->query( $sqla ) as $row ) {
             array_push( $result, $row );
         }
+
+
+
         return $result;
 
     }
@@ -630,51 +632,6 @@ class WorkshopSurvey extends DatabaseObject
         return($database->affected_rows()==1) ? true : false;
         //return $database->fetch_array( $database->query( $sql ) );
     }
-
-
-    // public function pagination_link($selected_counselor, $selected_month, $selected_year, $selected_fy_year, $selected_offset, $resultArray, $nextOrPrevious){
-			
-	// 	$paginationLink = "outreach_data.php?";
-								
-	// 	if($selected_counselor){
-	// 		$paginationLink .= "counselor=" . $selected_counselor;
-	// 		$andCounts++; 
-	// 	}
-								
-	// 	if($selected_month){
-	// 		if($selected_month != "all"){
-	// 			$paginationLink .= ($andCounts >= 1) ? "&" : "";
-	// 			$paginationLink .= "month=" . $selected_month;
-	// 			$andCounts++; 	
-	// 		}
-	// 	}
-								
-	// 	if($selected_year){
-	// 		$paginationLink .= ($andCounts >= 1) ? "&" : "";
-	// 		$paginationLink .= "year=". $selected_year;
-	// 		$andCounts++;
-	// 	}
-								
-	// 	if($selected_fy_year){
-	// 		$paginationLink .= ($andCounts >= 1) ? "&" : "";
-	// 		$paginationLink .= "fyYear=" . $selected_fy_year;
-	// 		$andCounts++; 
-	// 	}
-								
-	// 	if($selected_offset){
-	// 		$paginationLink .= ($andCounts >= 1) ? "&" : "";
-	// 		$paginationLink .= "offset=" . $selected_offset;
-	// 		$andCounts++; 
-	// 	}
-			
-	// 	if($nextOrPrevious == "next"){
-	// 		$paginationLink .= "&surveyblock=". $resultArray['paginationBlockArray']['paginationNextPage'];
-	// 	} else {
-	// 		$paginationLink .= "&surveyblock=". $resultArray['paginationBlockArray']['paginationPreviousPage'];
-	// 	}						
-		
-	// 	return $paginationLink;
-	// }
 }
 
 //$wsModel = new WorkshopSurvey();

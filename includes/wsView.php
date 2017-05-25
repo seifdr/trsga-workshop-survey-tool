@@ -464,6 +464,8 @@ class WorkshopSurveyViews
                 'December'
             );
 
+            $offsets = array( 25, 50, 100 );
+
             $fy_quarters = array( 'Fiscal Quarter 1', 'Fiscal Quarter 2', 'Fiscal Quarter 3', 'Fiscal Quarter 4' );
 
             $years = $this->wsModel->find_all_years();
@@ -562,10 +564,16 @@ class WorkshopSurveyViews
                 </select>
 
                  <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
-                    <option value="25" >25 Surveys</option>
-                    <option value="50" >50 Surveys</option>
-                    <option value="100" >100 Surveys</option>
                     <option value="all" >All Surveys</option>
+                    <?php 
+
+                        foreach ($offsets as $offset) {
+                           echo "<option ";
+                                if( $this->wsModel->offset == $offset ){ echo " selected "; }
+                           echo " value='". $offset ."' >". $offset ." Surveys</option>";
+                        }
+
+                    ?>
                 </select>
 
                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -648,6 +656,11 @@ class WorkshopSurveyViews
                 ?>
             </tbody>
         </table>
+        <?php 
+            if( ( isset( $this->wsModel->paginationObj ) ) && ( $this->wsModel->paginationObj->total_pages() > 1 ) ){
+                $this->output_report_pagination();
+            }
+        ?>
         <?php
         // cloisng for count of $resultBody
         } else {
@@ -669,6 +682,42 @@ class WorkshopSurveyViews
                 <td><a class='indivSurvey' data-id=\"{$row['id']}\" href='survey.php?action=survey&sid={$row['id']}' title='View Full Survey' >Full Survey</a></td>
             </tr>";
         return $return;
+    }
+
+    private function output_report_pagination(){
+    
+        ?>
+            <nav aria-label="Survery Report Pagination">
+                <ul class="pagination justify-content-center">
+                    <?php if( $this->wsModel->paginationObj->has_previous_page() ){ ?>
+                        <li class="page-item">
+                            <a class="page-link" href="<?php echo $this->wsModel->paginationObj->previousLink; ?>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                    <?php } 
+
+                        // Iterate through the pages in between
+                        for($i=1; $i <= $this->wsModel->paginationObj->total_pages(); $i++){
+                                echo '<li class="page-item';
+                                     if( $i == $this->wsModel->paginationObj->current_page ){ echo " active "; } 
+                                echo '"><a class="page-link" href="'. $this->wsModel->paginationObj->genericLink .'&block='. $i .'">'. $i .'</a></li>';
+                        }
+                    
+                    if( $this->wsModel->paginationObj->has_next_page() ){ ?>
+                        <li class="page-item">
+                            <a class="page-link" href="<?php echo $this->wsModel->paginationObj->nextLink; ?>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    <?php 
+                        }
+                    ?> 
+                </ul>
+            </nav>
+        <?php
     }
 
     public function sql_to_text(){
@@ -889,7 +938,6 @@ class WorkshopSurveyViews
 
                                                 <?php
                                         } elseif ( $_POST['action'] == 'completeDelete' ){
-                                            echo "complete delete";
                                             if( $this->wsModel->deleteSurvey() ){
                                                echo $this->success('<strong>Success!</strong> Suvery #' . $this->wsModel->id . " was successfully deleted.");
                                             } else {

@@ -23,7 +23,7 @@
             </div>
             <div class="row">
                 <div class="col mb-4">
-                    <a href="report.php">View Workshop Survey Data</a> | <a href="#">Remove Survey</a>
+                    <a href="report.php">View Workshop Survey Data</a> | <a href="remove.php">Remove Survey</a>
                 </div>
             </div>     
             <div class="row mb-4">

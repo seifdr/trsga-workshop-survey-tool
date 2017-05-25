@@ -53,6 +53,8 @@ class WorkshopSurveyController {
             if( ( $_GET['offset'] ) != 'all' ){
                 $params['offset'] = $_GET['offset'];
             }
+        } else {
+            $params['offset'] = 25;
         }
 
         if( isset( $_GET['block'] ) && !empty( $_GET['block'] ) ){

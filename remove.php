@@ -21,13 +21,6 @@
         
     </header>
     <body>
-    <?php
-
-        if( isset( $_POST ) ){
-            look( $_POST );
-        }
-
-    ?>
         <div class="container">
             <?php $wsView->deleteSurvey(); ?>
         </div> <!-- close container -->
