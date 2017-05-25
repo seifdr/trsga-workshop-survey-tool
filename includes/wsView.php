@@ -832,19 +832,7 @@ class WorkshopSurveyViews
                         </div> <!-- close col -->
                     </div> <!-- close row -->
                     <p><strong>If any, which TRS events have you attended in the past?</strong></p>
-                    <p><?php 
-
-                        $eventsAttended = explode(',', $result['question2'] );
-                        if( count( $eventsAttended ) > 0 ){
-                              $cnt = 0;
-                              foreach ( explode(',', $result['question2'] ) as $value ) {
-                                        if( $cnt > 0 ){ echo ", "; }
-                                        echo $this->wsModel->workshopTypes[ ( $value - 1 ) ];
-                                        $cnt++;
-                              }
-                        } else {
-                            echo "<p>No reponse given.</p>";
-                        }?></p>
+                    <p><?php echo $this->explodeEventsAttended( $result['question2'] ); ?></p>
                     <p><strong>3.) After attending the Group Counseling event, has your understanding of the following topics increased or stayed the same?</strong></p>
                     <div class="row">
                         <div class="col-12 col-md-6">
@@ -982,6 +970,73 @@ class WorkshopSurveyViews
 
     private function success( $message = ''){
         return "<div class='alert alert-success' role='alert'>". $message ."</div>";
+    }
+
+    private function explodeEventsAttended( $question2Input ){
+        $returnStr = ""; 
+
+        $eventsAttended = explode(',', $question2Input );
+        
+        if( count( $eventsAttended ) > 0 ){
+                $cnt = 0;
+                foreach ( explode(',', $question2Input ) as $value ) {
+                        if( $cnt > 0 ){ $returnStr .= ", "; }
+                        $returnStr .= $this->wsModel->workshopTypes[ ( $value - 1 ) ];
+                        $cnt++;
+                }
+        } else {
+            $returnStr = "<p>No reponse given.</p>";
+        }
+        return $returnStr;
+    }
+
+
+    //MAKE CSV 
+
+    public function generate_csv(){
+        $result = $this->wsModel->get_csv_report();
+
+        // look( $result['Avgs'][0] );
+
+        // look( $result['Data'] );
+
+        // look( $result['Counts'] );
+
+        // look( count( $result['Data'] ) );
+
+        $sql_explain = $this->sql_to_text();
+
+
+        // create a file pointer connected to the output stream
+
+
+	    $output = fopen('php://output', 'w');
+
+        if(count( $result['Data'] ) <= 0){
+			fputcsv($output, array('There was an error preparing the file.'));
+		} else {
+            fputcsv($output, array('Workshop Surveys'));
+			fputcsv($output, array($sql_explain));
+			fputcsv($output, array(' '));
+			fputcsv($output, array('Total Surveys: ', $result['Counts']['TotalCount'], ' ', 'Count of 5\'s: ', $result['Counts']['all5s'], ' ', 'Survey Satisfaction Perentage: ', $result['Counts']['surveySatPercentage']. '%'));
+			fputcsv($output, array('Total Fails: ', $result['Counts']['Fails'], ' ', 'Count of 4\'s: ', $result['Counts']['all4s'], ' ', 'Average Survey Score: ', $result['Counts']['avgScore'] ));
+			fputcsv($output, array(' ', ' ', ' ', 'Count of 4\'s and 5\'s: ', $result['Counts']['all45s'], ' ', ' ', ' ' ));
+			fputcsv($output, array(' '));
+
+            fputcsv($output, array('SurveryID',  'Event Date',  'Location', 'Counselor', 'Pass or Fail', 'The presenter was knowledgable', 'The presenter has an effective presentation style.', 'The workshop content was organized and easy to follow', 'Please rate the workshop overall', 'If any, which TRS events have you attened in the past?', 'Eligility Requirements', 'Plans of Retirement/Options', 'Beneficiary Information', 'Service Credit', 'The knowledge and skills I gained from this group counseling will be usefull when applying for retirement.', 'What other topics would you like us to cover in future workshops?', 'Please tell us what you found most valuable about this workshop?'        ));
+
+            foreach ($result['Data'] as $row ) {
+
+                $passOrFail = ( $row['Failed'] == 0 )? 'Pass' : 'Fail';
+                $question2  = $this->explodeEventsAttended( $row['Q2_PastAttend'] );
+
+                fputcsv($output, array( $row['id'], $row['Date'], $row['location'], $row['Counselor'], $passOrFail, $row['Knowledgable'], $row['Effective'], $row['Organized'], $row['Overall'], $question2, $row['Q3_Eligibility'], $row['Q3_Plans'], $row['Q3_Beneficiary'], $row['Q3_Service_Credit'], $row['Q4_Useful'], $row['Q5_OtherTopics'], $row['Q6_MostValuable'] ));
+
+            }
+
+            fputcsv($output, array('','','','','', $result['Avgs'][0]['Knowledgable'], $result['Avgs'][0]['Effective'], $result['Avgs'][0]['Organized'], $result['Avgs'][0]['Overall'], '', $result['Avgs'][0]['Eligibility'], $result['Avgs'][0]['Plans'], $result['Avgs'][0]['Beneficiary'], $result['Avgs'][0]['ServiceCredit'] ) );
+
+        }
     }
 
 

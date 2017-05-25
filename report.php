@@ -2,26 +2,7 @@
 
     include('includes/initialize.php');
 
-    // 'counselorCode', 'monthNumber', 'year', 'fy', 'fq'
-    $modelParams = array();
-
-    if( !empty( $monthNum ) ){
-        $modelParams['monthNumber'] = $monthNumber; 
-    }
-    
-    if( !empty( $year ) ){
-        $modelParams['year'] = $year; 
-    }
-
-    if( !empty( $fyYear ) ){
-        $modelParams['fy'] = $fyYear; 
-    }
-
-    if( !empty( $fyQuarter ) ){
-        $modelParams['fq'] = $fyQuarter; 
-    }
-
-    $wsModel = new WorkshopSurvey( $modelParams );
+    $wsModel = new WorkshopSurvey( );
     $wsController = new WorkshopSurveyController( $wsModel );
     $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
 
@@ -32,7 +13,6 @@
     // $model = new Model();
     // $controller = new Controller($model);
     // $view = new View($controller, $model);
-
 ?>
 <html>
     <header>

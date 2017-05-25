@@ -3,9 +3,12 @@
 class WorkshopSurveyController {
     
     private $wsModel;
+    private $pageRestriction;
 
-    public $urlAccessibleMethods = array( 'customReport', 'survey', 'prepareDelete', 'completeDelete' );
+    public $urlAccessibleMethods = array( 'customReport', 'survey', 'prepareDelete', 'completeDelete', 'make_csv' );
 
+    //first parameter is the workshopSurveyModel. This is mandatory
+    //second parameter is an option page restriction, will only run a function if is allowed
     function __construct( $wsModel ){
         $this->wsModel = $wsModel;
     }
@@ -15,6 +18,7 @@ class WorkshopSurveyController {
     }
 
     public function customReport(){
+        //used for both the report page, and the make csv page 
         $params = array();
 
         if( isset( $_GET['counselor'] ) && !empty( $_GET['counselor'] ) ){

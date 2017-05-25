@@ -515,7 +515,7 @@ class WorkshopSurvey extends DatabaseObject
 
     }
 
-    public function survey_report( $avgs = FALSE, $singleSurvey = FALSE ){
+    public function survey_report( $avgs = FALSE, $singleSurvey = FALSE, $csv = FALSE ){
         global $database;
 
         $avgs = ( $avgs == TRUE )? (bool) TRUE : (bool) FALSE;
@@ -533,11 +533,29 @@ class WorkshopSurvey extends DatabaseObject
                         ws.question1b AS Effective, 
                         ws.question1c AS Organized, 
                         ws.question1d AS Overall ";
+
+                        if( $csv ){ 
+                            $sqla .= ", ws.question2 AS Q2_PastAttend,
+                            ws.question3a AS Q3_Eligibility,
+                            ws.question3b AS Q3_Plans,
+                            ws.question3c AS Q3_Beneficiary,
+                            ws.question3d AS Q3_Service_Credit,
+                            IF( ws.question4 = 1, 'Yes', 'No' ) AS Q4_Useful,
+                            ws.question5 AS Q5_OtherTopics,
+                            ws.question6 AS Q6_MostValuable ";
+                        }
         } else {
             $sqla .= "  ROUND( AVG( ws.question1a ), 2 ) AS Knowledgable, 
                         ROUND( AVG( ws.question1b ), 2 ) AS Effective, 
                         ROUND( AVG( ws.question1c ), 2 ) AS Organized, 
                         ROUND( AVG( ws.question1d ), 2 ) AS Overall";
+
+                         if( $csv ){ 
+                            $sqla .= ", ROUND( AVG( ws.question3a ), 2 ) AS Eligibility, 
+                            ROUND( AVG( ws.question3b ), 2 ) AS Plans, 
+                            ROUND( AVG( ws.question3c ), 2 ) AS Beneficiary, 
+                            ROUND( AVG( ws.question3d ), 2 ) AS ServiceCredit";
+                         }
         }
 
         if( !$avgs ){
@@ -575,7 +593,7 @@ class WorkshopSurvey extends DatabaseObject
                             $sqla .= " ORDER BY Date DESC ";
                         }
 
-                        if( !empty( $this->offset ) && ($this->offset != "all") && !$avgs ) {
+                        if( !empty( $this->offset ) && ($this->offset != "all") && !$avgs && !$csv ) {
 
                             //Pagination 
                             //1. the current page number ($current_page)
@@ -593,18 +611,16 @@ class WorkshopSurvey extends DatabaseObject
                             $this->paginationObj = new WsPagination($page, $per_page, $total_count, $this);
                         }
     
-                        if( !empty( $this->offset ) && $this->offset != "all" && !$avgs ){
+                        if( !empty( $this->offset ) && $this->offset != "all" && !$avgs && !$csv ){
                             //Add Pagination SQL
                             $sqla .= " LIMIT {$this->paginationObj->per_page} OFFSET {$this->paginationObj->offset()}";
                         }
-        
+              
         $result = array(); 
 
         foreach ( $database->query( $sqla ) as $row ) {
             array_push( $result, $row );
         }
-
-
 
         return $result;
 
@@ -632,6 +648,17 @@ class WorkshopSurvey extends DatabaseObject
         return($database->affected_rows()==1) ? true : false;
         //return $database->fetch_array( $database->query( $sql ) );
     }
+
+    // get data for CSV
+    public function get_csv_report(){
+                           //survey_report( $avgs = FALSE, $singleSurvey = FALSE, $csv = FALSE ){
+        $avgsData   = $this->survey_report( TRUE, FALSE, TRUE );
+        $data       = $this->survey_report( FALSE, FALSE, TRUE );
+        $counts     = $this->get_survey_report_header_numbers();
+
+        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts );
+    }
+
 }
 
 //$wsModel = new WorkshopSurvey();
