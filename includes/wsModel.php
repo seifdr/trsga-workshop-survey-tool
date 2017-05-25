@@ -534,10 +534,10 @@ class WorkshopSurvey extends DatabaseObject
                         ws.question1c AS Organized, 
                         ws.question1d AS Overall ";
         } else {
-            $sqla .= "  AVG( ws.question1a ) AS Knowledgable, 
-                        AVG( ws.question1b ) AS Effective, 
-                        AVG( ws.question1c ) AS Organized, 
-                        AVG( ws.question1d ) AS Overall";
+            $sqla .= "  ROUND( AVG( ws.question1a ), 2 ) AS Knowledgable, 
+                        ROUND( AVG( ws.question1b ), 2 ) AS Effective, 
+                        ROUND( AVG( ws.question1c ), 2 ) AS Organized, 
+                        ROUND( AVG( ws.question1d ), 2 ) AS Overall";
         }
 
         if( !$avgs ){

@@ -654,6 +654,17 @@ class WorkshopSurveyViews
                         echo $this->output_survey_row( $row );
                     }
                 ?>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th><?php echo htmlspecialchars( $resultBottom[0]['Knowledgable'] ); ?></th>
+                    <th><?php echo htmlspecialchars( $resultBottom[0]['Effective'] ); ?></th>
+                    <th><?php echo htmlspecialchars( $resultBottom[0]['Organized'] ); ?></th>
+                    <th><?php echo htmlspecialchars( $resultBottom[0]['Overall'] ); ?></th>
+                    <th></th>
+                </tr>
             </tbody>
         </table>
         <?php 
