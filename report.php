@@ -6,9 +6,11 @@
     $wsController = new WorkshopSurveyController( $wsModel );
     $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
 
-    if ( isset( $_GET['action'] ) && !empty( $_GET['action'] ) ) {
-        $wsController->{$_GET['action']}();
-    }
+    // if ( isset( $_GET['action'] ) && !empty( $_GET['action'] ) ) {
+    //     $wsController->{$_GET['action']}();
+    // } else {
+        $wsController->customReport();
+    // }
 
     // $model = new Model();
     // $controller = new Controller($model);

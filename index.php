@@ -111,14 +111,7 @@
                 </div>
             </div>
             <div class="row mb-4">
-                <div class="col-12 col-sm-6">
-                    <h5>Knowledge and Skills gained will be useful</h5>
-                    <?php 
-
-                        $wsView->knowledge_useful();
-
-                    ?>
-                </div>
+                <?php $wsView->knowledge_useful(); ?>
             </div>
         </div>
         <footer>

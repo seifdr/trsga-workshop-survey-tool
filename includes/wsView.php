@@ -421,20 +421,34 @@ class WorkshopSurveyViews
         $result = $this->wsModel->get_knowledge_useful();
 
         ?>
-        <p><?php echo $database->escape_values( $result[0]['YesPerc'] ); ?>% of people found the knowledge and information gained from the workshops useful.</p>
-         <div class="table-responsive">
-            <table class="table table-striped text-center">
-                <thead>
-                    <tr>
-                    <th>Response</th>
-                    <th>Count</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Yes</td><td><?php echo $database->escape_values( $result[0]['Yes'] ); ?></td></tr>
-                    <tr><td>No</td><td><?php echo $database->escape_values( $result[0]['No'] ); ?></td></tr>
-                </tbody>
-            </table>
+
+        <div class="col-12 col-sm-12 col-md-6">
+            <h5>Knowledge and Skills gained will be useful</h5>
+            <p><?php echo $database->escape_values( $result[0]['YesPerc'] ); ?>% of people found the knowledge and information gained from the workshops useful.</p>
+                <div class="table-responsive">
+                    <table class="table table-striped text-center">
+                        <thead>
+                            <tr>
+                            <th>Response</th>
+                            <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Yes</td><td><?php echo $database->escape_values( $result[0]['Yes'] ); ?></td></tr>
+                            <tr><td>No</td><td><?php echo $database->escape_values( $result[0]['No'] ); ?></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+        </div> 
+        <div class="col-12 col-sm-12 col-md-6">
+            <?php 
+                $chartObj = json_encode( [
+                    ['Reponse', 'Count'],
+                    ['Yes', (int) $result[0]['Yes']],
+                    ['No', (int) $result[0]['No']]
+                ] );
+            ?>
+            <div id="piechart" style="width: 550px; height: 350px;" data-chart='<?php echo $chartObj; ?>'></div>
         </div>
         <?php
 
@@ -589,8 +603,8 @@ class WorkshopSurveyViews
         ?>
             <p><strong><?php echo $this->sql_to_text(); ?></strong></p>
             <div class="row mb-4" >
-                <div class="col-6 col-sm-4 col-md-3" >Show only fails</div>
-                <div class="col-6 col-sm-4 col-md-3" >Download CSV</div>
+                <div class="col-6 col-sm-4 col-md-3" ><a href="#" id="showFails" >Show only fails</a></div>
+                <div class="col-6 col-sm-4 col-md-3" ><a href="make_csv.php?action=customReport">Download CSV</a></div>
             </div>
             <table class='table' id="reportheading">
                 <tbody>
@@ -680,7 +694,7 @@ class WorkshopSurveyViews
     }
 
     private function output_survey_row( $row ){
-        $return = ( $row['Failed'] )? "<tr class='bg-danger'>" : "<tr>";
+        $return = ( $row['Failed'] )? "<tr class='bg-danger'>" : "<tr class='normal'>";
                         
         $return .= "<td>{$row['id']}</td>
                 <td>{$row['Date']}</td>

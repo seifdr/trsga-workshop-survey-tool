@@ -27,6 +27,39 @@ $(document).ready( function(){
                 return false; 
             }
     });
+
+    $('a#showFails').click( function(){
+        
+        $('table#reportbody tr.normal').toggle();
+
+        var text = $(this).text().toLowerCase();
+        $(this).text(
+             ( text == "show only fails" ) ? "Show all surveys" : "Show only fails");
+
+
+        return false;
+    });
+
+    // Pie chart on ws dashboard
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+        var knowledgeAndSkillsChartData = $('div#pieChart').data('chart');
+
+        var data = google.visualization.arrayToDataTable( knowledgeAndSkillsChartData );
+
+        var options = {
+           // title: 'My Daily Activities'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+        chart.draw(data, options);
+
+    }
+
 });
 
 

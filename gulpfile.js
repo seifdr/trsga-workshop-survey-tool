@@ -81,6 +81,7 @@ gulp.task('js', function(){
 		'js/src/tether.min.js',
 		'js/src/jquery-3.2.1.min.js',
 		'js/src/bootstrap.min.js',
+		'js/src/googleCharts_loader.js',
 		'js/custom/*.js'
 	];
 
