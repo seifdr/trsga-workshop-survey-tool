@@ -8,7 +8,8 @@ class WorkshopSurvey extends DatabaseObject
 
     protected static $table_name = "workshopSurvey17";	
 	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'removed', 'FirstName', 'LastName');
-	
+	public static $month_array = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December"); 
+
     public $id;
     public $respondentID;
     public $question1a;
@@ -239,6 +240,61 @@ class WorkshopSurvey extends DatabaseObject
         }
 
         return $result;
+    }
+
+    public function get_past_six_mon_sat_percentages(){
+        global $database;
+
+        $last_six = $this->find_previous_six_months();
+
+        $yearsToInclude     = array();
+        $yearsToIncludeTxt  = "";
+
+        foreach ( $last_six as $row ) {
+            $yrNum = substr( $row, -4, 4 );
+            if( !in_array( $yrNum, $yearsToInclude ) ){
+
+                if( count( $yearsToInclude ) > 0 ){
+                    $yearsToIncludeTxt .= " OR ";
+                }
+
+                $yearsToIncludeTxt .= " survey_yr='" . $yrNum . "'";
+
+                array_push( $yearsToInclude, $yrNum ); 
+            }
+        }
+
+        $sql    = "SELECT id, question1a, question1b, question1c, question1d, survey_month_num, survey_yr FROM ". static::$table_name ." WHERE " . $yearsToIncludeTxt;
+
+        $sql1   = " SELECT 
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 ), 1, 0 ) ) AS passes,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 ), 1, 0 ) ) AS fails,
+                        COUNT(*) as total,
+                        survey_month_num, 
+                        survey_yr FROM ( ". $sql ." ) as t1 
+                            GROUP BY survey_month_num, survey_yr
+                            ORDER BY survey_yr ASC, survey_month_num ASC";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sql1 ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        $modifiedResult = array();
+
+        for ($i=0; $i < count($result) ; $i++) { 
+            $row = $result[$i];
+            $modifiedResult[$i]['percentage']       = ( ( $row['passes'] > 0 && $row['total'] > 0 ) )? $row['passes'] / $row['total'] * 100  : 0;
+            $modifiedResult[$i]['monthNum']         = $row['survey_month_num'];
+            $modifiedResult[$i]['monthName']        = self::$month_array[ $row['survey_month_num'] ];
+            $modifiedResult[$i]['monthYear']        = $row['survey_yr'];
+        }
+
+        // $modifiedResult =
+
+        return $modifiedResult;
+            
     }
 
     public function get_past_attendance(){
@@ -664,6 +720,66 @@ class WorkshopSurvey extends DatabaseObject
 
         return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts );
     }
+
+    public function find_previous_six_months($formatted=false, $names=false){
+		
+		$month_num = $this->currentMonth;		
+		$month_name = self::$month_array[$month_num];
+		$year_num = $this->currentYear;
+			
+		if($month_num > 1){
+			$month_num--;
+		} else {
+			$month_num = 12;
+			$year_num--;
+		}
+			
+		$month_counter = 5;
+		
+		$formatted_date = $month_num . "/" . $year_num;
+		$csv_date = $month_num . "," . $year_num;
+		$csv_date_name = $month_name . "," . $year_num;
+		
+		$last_six_csv = array($csv_date);
+		$formatted_last_six = array($formatted_date);
+		$last_six_names = array($csv_date_name);
+						
+		while ($month_counter > 0) {
+			$month_counter--;
+			
+			if($month_num > 1){
+				$month_num--;
+				$formatted_date = $month_num . "/" . $year_num;
+				$csv_date = $month_num . "," . $year_num;
+				$csv_date_name = static::$month_array[$month_num]. "," . $year_num;
+				
+				array_push($last_six_csv, $csv_date);
+				array_push($formatted_last_six, $formatted_date);
+				array_push($last_six_names, $csv_date_name);
+			} else {
+				$month_num = 12;
+				$year_num--;
+				$formatted_date = $month_num . "/" . $year_num; 
+				$csv_date = $month_num . "," . $year_num;
+				$csv_date_name = static::$month_array[$month_num]. "," . $year_num;
+				
+				array_push($last_six_csv, $csv_date);
+				array_push($formatted_last_six, $formatted_date);
+				array_push($last_six_names, $csv_date_name);
+			}
+		}
+		
+		if($formatted == true){
+			return $formatted_last_six;
+		} else {
+			if($names == true){
+				return $last_six_names;
+			} else {
+				return $last_six_csv;	
+			}
+		}
+		
+	}
 
 }
 

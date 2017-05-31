@@ -269,7 +269,7 @@ class WorkshopSurveyViews
         ?>
 
         <div class="table-responsive">
-            <table class="table table-striped text-center">
+            <table class="table table-striped text-center" id="satPerc" >
                 <thead>
                     <tr>
                         <th>Counselor</th>
@@ -286,24 +286,44 @@ class WorkshopSurveyViews
                         foreach ($result as $row) {
                             
                             $zeros = ( is_null( $row['Tot_Perc'] ) )? TRUE : FALSE;
-
-                                $td1 = $database->escape_values( $row['FirstName'] ." ". $row['LastName'] );
-                                $td2 = $database->escape_values( $row['Qtr1_Perc'] );
-                                $td3 = $database->escape_values( $row['Qtr2_Perc'] );
-                                $td4 = $database->escape_values( $row['Qtr3_Perc'] );
-                                $td5 = $database->escape_values( $row['Qtr4_Perc'] );
-                                $td6 = $database->escape_values( $row['Tot_Perc'] );
-
                             
+                                $td1     = $database->escape_values( $row['FirstName'] ." ". $row['LastName'] );
+                                $td2     = $database->escape_values( $row['Qtr1_Perc'] );
+                                $td3     = $database->escape_values( $row['Qtr2_Perc'] );
+                                $td4     = $database->escape_values( $row['Qtr3_Perc'] );
+                                $td5     = $database->escape_values( $row['Qtr4_Perc'] );
+                                $td6     = $database->escape_values( $row['Tot_Perc'] );
+                                $mod_td6 = round( $td6 );
+
+                                if(($mod_td6) >= 98){
+                                    $gradeTxt = " Exceptional ";
+                                    $passing  = TRUE;
+                                } elseif (($mod_td6) >= 95){
+                                    $gradeTxt = " Exceeds ";
+                                    $passing  = TRUE;
+                                } elseif (($mod_td6) >= 89){
+                                    $gradeTxt = " Meets ";
+                                    $passing  = TRUE;
+                                } elseif ($mod_td6 != 0) {
+                                    $gradeTxt = "Does Not Meet";
+                                    $passing  = FALSE;
+                                } else {
+                                    $gradeTxt = " -- ";
+                                    $passing  = TRUE;
+                                }
                             ?>
-                                <tr <?php if( $zeros ){ echo ' class="zero" '; } ?> >
+                                <tr <?php 
+                                        if( !$passing ){
+                                            echo ' class="bg-danger" ';
+                                        } elseif ( $zeros ){ echo ' class="zero" '; } 
+                                    ?> >
                                     <td><?php echo $td1; ?></td>
                                     <td><?php echo !empty( $td2 )? $td2 . "%" : '--';  ?></td>
                                     <td><?php echo !empty( $td3 )? $td3 . "%" : '--';  ?></td>
                                     <td><?php echo !empty( $td4 )? $td4 . "%" : '--';  ?></td>
                                     <td><?php echo !empty( $td5 )? $td5 . "%" : '--';  ?></td>
                                     <td><?php echo !empty( $td6 )? $td6 . "%" : '--';  ?></td>
-                                    <td>Grade Here</td>
+                                    <td><?php echo  $gradeTxt ?></td>
                                 </tr>
 
                             <?php
@@ -331,6 +351,43 @@ class WorkshopSurveyViews
 
         <?php   
 
+
+    }
+
+    public function suvery_sat_grading($total_percentage) {
+		$total = $total_percentage;
+		
+		if(($total) >= 98){
+			$grade_text_output = " Exceptional ";
+		} elseif (($total) >= 95){
+			$grade_text_output = " Exceeds ";
+		} elseif (($total) >= 89){
+			$grade_text_output = " Meets ";
+		} elseif ($total != 0) {
+			$grade_text_output = "Does Not Meet";
+		} else {
+			$grade_text_output = " No Surveys Yet ";
+		}
+		
+		return $grade_text_output;
+	}	
+
+    public function past_six_mon_sat_percentages(){
+        $result = $this->wsModel->get_past_six_mon_sat_percentages();
+
+        $chartArr = array();
+
+        array_push( $chartArr, array('Month', 'Percentage') );
+
+        foreach ( $result as $row ) {
+             array_push( $chartArr, array( $row['monthName'], round( $row['percentage'], 2 ) ) );
+        }
+
+        $lineChartObj = json_encode( $chartArr );
+
+        ?>
+            <div id="lineChart" data-chart='<?php echo $lineChartObj; ?>'></div>
+        <?php
 
     }
 

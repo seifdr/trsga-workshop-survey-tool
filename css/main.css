@@ -8556,6 +8556,10 @@ tr.totals td {
   font-weight: bold;
 }
 
+table#satPerc tr.bg-danger {
+  color: #fff;
+}
+
 table#reportHeading {
   max-width: 900px;
 }

@@ -16,7 +16,6 @@
     </header>
     <body>
         <div class="container">
-        <h1>Heh</h1>
             <div class="row">
                 <div class="col">
                     <h1>Workshop Overview - FY <?php echo $wsView->current_fy; ?></h1>
@@ -81,12 +80,22 @@
                     ?>
                 </div>
             </div>
-            <div class="row mb-4">
+            <div class="row mb-1">
                 <div class="col">
                     <h5>FY Survey Satisfaction Percentages by Planner</h5>
                     <?php
 
                         $wsView->survey_sat_percentages_by_planner();
+
+                    ?>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col">
+                    <h5>Workshop Survey Satisfaction Trending Graph (last six months)</h5>
+                    <?php
+
+                        $wsView->past_six_mon_sat_percentages();
 
                     ?>
                 </div>

@@ -209,10 +209,39 @@ $(document).ready( function(){
     });
 
     // Pie chart on ws dashboard
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawChart);
+    google.charts.load('current', {packages: ['corechart', 'line']});
+    google.charts.setOnLoadCallback(drawLineChart);
+    google.charts.setOnLoadCallback(drawPieChart);
 
-    function drawChart() {
+    function drawLineChart() {
+
+        var workshopSatPercentageChartData = $('div#lineChart').data('chart');
+        
+        var data = google.visualization.arrayToDataTable( workshopSatPercentageChartData );
+
+        var options = {
+          width: '100%',
+          height: 400,
+         chartArea:{left:0,top: 20,width:'100%',height:'80%'},
+          //title: 'Workshop Survey Satisfaction Trending Graph (last six months)',
+          //curveType: 'function',
+          legend: { position: 'bottom' },
+          vAxis: {
+            maxValue: 100,
+            viewWindowMode:'explicit',
+            viewWindow: {
+              max:100,
+              min:0
+            }
+          }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('lineChart'));
+
+        chart.draw(data, options);
+    }
+
+    function drawPieChart() {
 
         var knowledgeAndSkillsChartData = $('div#pieChart').data('chart');
 
