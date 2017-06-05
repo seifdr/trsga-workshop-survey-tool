@@ -375,8 +375,6 @@ class WorkshopSurveyViews
     public function past_six_mon_sat_percentages(){
         $result = $this->wsModel->get_past_six_mon_sat_percentages();
 
-       
-
         $chartArr = array();
 
         array_push( $chartArr, array('Month', 'Percentage') );
@@ -693,7 +691,37 @@ class WorkshopSurveyViews
                     </tr>
                 </tbody>
             </table>
+        <?php
 
+            $attresult = $this->wsModel->get_past_attendance();
+
+        ?>
+            <div id="extraInfo" class="row">
+                <div class="col col-sm-6">
+                    <p><strong>Past Events Attended</strong></p>
+                    <table class='table'>
+                        <tr><th>Event</th><th>Percentage</th><th>Total</th></tr>
+                        <tr><td>First TRS Event</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event Count'] ); ?></td></tr>
+                        <tr><td>One-on-one Couseling</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling Count'] ); ?></td></tr>
+                        <tr><td>Half-Day Seminar</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar Count'] ); ?></td></tr>
+                        <tr><td>Pre-Retirement Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop Count'] ); ?></td></tr>
+                        <tr><td>Mid-Career Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop Count'] ); ?></td></tr>
+                        <tr><td>New Hire Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop Count'] ); ?></td></tr>
+                    </table>
+                </div>
+                <div class="col col-sm-6">
+                    <p><strong>Understanding of the following topics</strong></p>
+                    <table class='table'>
+                        <tr><th>Topics</th><th>Avg Value</th><th>Avg Reponse</th></tr>
+                        <tr><td></td><td></td><td></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-2 mb-4">
+                <div class="col d-flex justify-content-center">
+                    <a href="#" class="btn btn-primary btn-sm" role="button"> -- Show More Information -- </a>
+                </div>
+            </div>
         <?php
     }
 

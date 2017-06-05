@@ -227,11 +227,7 @@ class WorkshopSurvey extends DatabaseObject
             //catch all
             //$sqlLayer2    = "SELECT t.id, t.FirstName, t.LastName, t.fiscal_qtr, t.surveyID, COUNT( IF( t.fiscal_qtr = '1', 1, NULL) ) as Qtr1, COUNT( IF( t.fiscal_qtr = '2', 1, NULL) ) as Qtr2, COUNT( IF( t.fiscal_qtr = '3', 1, NULL) ) as Qtr3, COUNT( IF( t.fiscal_qtr = '4', 1, NULL) ) as Qtr4, COUNT( IF( ( t.fiscal_qtr = '1' OR t.fiscal_qtr = '2' OR t.fiscal_qtr = '3' OR t.fiscal_qtr = '4' ), 1, NULL ) ) as Total FROM (". $sqld .") AS t GROUP BY t.surveyID";
             $sqlLayer2    = "SELECT t.FirstName, t.LastName, t.surveyID, COUNT( IF( t.fiscal_qtr = '1', 1, NULL) ) as Qtr1, COUNT( IF( t.fiscal_qtr = '2', 1, NULL) ) as Qtr2, COUNT( IF( t.fiscal_qtr = '3', 1, NULL) ) as Qtr3, COUNT( IF( t.fiscal_qtr = '4', 1, NULL) ) as Qtr4, COUNT( IF( ( t.fiscal_qtr = '1' OR t.fiscal_qtr = '2' OR t.fiscal_qtr = '3' OR t.fiscal_qtr = '4' ), 1, NULL ) ) as Total FROM (". $sqld .") AS t GROUP BY  t.FirstName, t.LastName, t.surveyID";
-
         }
-
-
-       
 
         $result = array(); 
 
@@ -338,10 +334,39 @@ class WorkshopSurvey extends DatabaseObject
                     
                     SUM( IF( question2 LIKE '%6%', 1, 0 ) ) as 'New Hire Workshop Count'
                     
-                    FROM ". static::$table_name ."
-                    WHERE fiscal_yr = ". $this->fy ." ";
+                    FROM ". static::$table_name ." AS ws ";
 
-        
+                    $whereCnt = 0;
+
+                    if( !empty( $this->counselorCode ) ){
+                        $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
+                        $whereCnt++;
+                    }
+
+                    if( !empty( $this->monthNumber ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.survey_month_num = '". $this->monthNumber ."' ";
+                        $whereCnt++;
+                    }
+
+                    if( !empty( $this->year ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.survey_yr = '". $this->year ."' ";
+                        $whereCnt++;
+                    }
+
+                    if( !empty( $this->fy ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.fiscal_yr = '". $this->fy ."' ";
+                        $whereCnt++;
+                    }
+                    
+                    if( !empty( $this->fq ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+                        $sql .= " ws.fiscal_qtr = '". $this->fq ."' ";
+                        $whereCnt++;
+                    }
+
         $result = array(); 
 
         foreach ( $database->query( $sql ) as $row ) {
