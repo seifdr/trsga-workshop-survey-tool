@@ -375,6 +375,8 @@ class WorkshopSurveyViews
     public function past_six_mon_sat_percentages(){
         $result = $this->wsModel->get_past_six_mon_sat_percentages();
 
+       
+
         $chartArr = array();
 
         array_push( $chartArr, array('Month', 'Percentage') );

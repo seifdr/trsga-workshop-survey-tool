@@ -54,7 +54,7 @@ $(document).ready( function(){
         var options = {
           width: '100%',
           height: 400,
-         chartArea:{left:0,top: 20,width:'100%',height:'80%'},
+         chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
           //title: 'Workshop Survey Satisfaction Trending Graph (last six months)',
           //curveType: 'function',
           legend: { position: 'bottom' },
