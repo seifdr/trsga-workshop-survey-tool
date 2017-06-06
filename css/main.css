@@ -8556,9 +8556,6 @@ table#satPerc tr.bg-danger {
   color: #fff;
 }
 
-table#reportHeading {
-  max-width: 900px;
-}
 table#reportHeading td {
   border: none;
 }
@@ -8571,6 +8568,24 @@ table#reportHeading td:nth-child(even) {
 
 section#extraInfo {
   display: none;
+}
+section#extraInfo table {
+  width: 100%;
+}
+section#extraInfo table th, section#extraInfo table td {
+  text-align: center;
+}
+section#extraInfo p {
+  text-align: center;
+}
+
+div#knowledgeSkills table td:nth-child(odd) {
+  text-align: right;
+  padding-right: 1em;
+}
+div#knowledgeSkills table td:nth-child(even) {
+  text-align: left;
+  padding-left: 1em;
 }
 
 a#showMoreInfo:active, a#showMoreInfo:focus {

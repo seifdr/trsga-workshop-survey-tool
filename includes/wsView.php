@@ -704,7 +704,7 @@ class WorkshopSurveyViews
                 <div class="row">
                     <div class="col col-sm-6">
                         <p><strong>Past Events Attended</strong></p>
-                        <table class='table table-striped'>
+                        <table>
                             <tr><th>Event</th><th>Percentage</th><th>Total</th></tr>
                             <tr><td>First TRS Event</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event Count'] ); ?></td></tr>
                             <tr><td>One-on-one Couseling</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling Count'] ); ?></td></tr>
@@ -716,7 +716,7 @@ class WorkshopSurveyViews
                     </div>
                     <div class="col col-sm-6">
                         <p><strong>Understanding of the following topics</strong></p>
-                        <table class='table table-striped'>
+                        <table>
                             <tr><th>Topics</th><th>Avg Value</th><th>Avg Reponse</th></tr>
                             <?php 
 
@@ -738,11 +738,10 @@ class WorkshopSurveyViews
                         </table>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-12 col-sm-6">
+                <div id="knowledgeSkills" class="row mt-4 d-flex justify-content-center">
+                    <div class="col-12 col-sm-6 ">
                         <p><strong>Knowledge and Skills gained will be useful</strong><br />
-                        <?php echo htmlspecialchars( $krResult[0]['YesPerc'] ); ?>% of people found the knowledge and information gained from the workshops useful.</p>
-                        <table class='table table-striped'>
+                        <table>
                             <tr><td>Yes</td><td><?php echo htmlspecialchars( $krResult[0]['Yes'] ); ?></td></tr>
                             <tr><td>No</td><td><?php echo htmlspecialchars( $krResult[0]['No'] ); ?></td></tr>
                         </table>
