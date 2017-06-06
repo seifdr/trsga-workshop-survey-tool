@@ -693,33 +693,65 @@ class WorkshopSurveyViews
             </table>
         <?php
 
-            $attresult = $this->wsModel->get_past_attendance();
+            $attresult      = $this->wsModel->get_past_attendance();
+
+            $underResult    = $this->wsModel->get_understandings();
+
+            $krResult       = $this->wsModel->get_knowledge_useful();
 
         ?>
-            <div id="extraInfo" class="row">
-                <div class="col col-sm-6">
-                    <p><strong>Past Events Attended</strong></p>
-                    <table class='table'>
-                        <tr><th>Event</th><th>Percentage</th><th>Total</th></tr>
-                        <tr><td>First TRS Event</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event Count'] ); ?></td></tr>
-                        <tr><td>One-on-one Couseling</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling Count'] ); ?></td></tr>
-                        <tr><td>Half-Day Seminar</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar Count'] ); ?></td></tr>
-                        <tr><td>Pre-Retirement Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop Count'] ); ?></td></tr>
-                        <tr><td>Mid-Career Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop Count'] ); ?></td></tr>
-                        <tr><td>New Hire Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop Count'] ); ?></td></tr>
-                    </table>
+        <section id="extraInfo" name="extraInfo">
+                <div class="row">
+                    <div class="col col-sm-6">
+                        <p><strong>Past Events Attended</strong></p>
+                        <table class='table table-striped'>
+                            <tr><th>Event</th><th>Percentage</th><th>Total</th></tr>
+                            <tr><td>First TRS Event</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event Count'] ); ?></td></tr>
+                            <tr><td>One-on-one Couseling</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling Count'] ); ?></td></tr>
+                            <tr><td>Half-Day Seminar</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar Count'] ); ?></td></tr>
+                            <tr><td>Pre-Retirement Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop Count'] ); ?></td></tr>
+                            <tr><td>Mid-Career Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop Count'] ); ?></td></tr>
+                            <tr><td>New Hire Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop Count'] ); ?></td></tr>
+                        </table>
+                    </div>
+                    <div class="col col-sm-6">
+                        <p><strong>Understanding of the following topics</strong></p>
+                        <table class='table table-striped'>
+                            <tr><th>Topics</th><th>Avg Value</th><th>Avg Reponse</th></tr>
+                            <?php 
+
+                                $legend = array(
+                                    'N/A',
+                                    'Not sure',
+                                    'About the same',
+                                    'Increased a little',
+                                    'Increased a lot',
+                                );
+
+                                foreach ($underResult[0] as $key => $value) {
+                                    $roundedVal = $database->escape_values( round( $value ) );
+                                    $rating     = $legend[$roundedVal];
+                                    echo "<tr><td>". htmlspecialchars( $key ) ."</td><td>". htmlspecialchars( $value ) ."</td><td>{$rating}</td></tr>";
+                                }
+
+                            ?>
+                        </table>
+                    </div>
                 </div>
-                <div class="col col-sm-6">
-                    <p><strong>Understanding of the following topics</strong></p>
-                    <table class='table'>
-                        <tr><th>Topics</th><th>Avg Value</th><th>Avg Reponse</th></tr>
-                        <tr><td></td><td></td><td></td></tr>
-                    </table>
+                <div class="row">
+                    <div class="col-12 col-sm-6">
+                        <p><strong>Knowledge and Skills gained will be useful</strong><br />
+                        <?php echo htmlspecialchars( $krResult[0]['YesPerc'] ); ?>% of people found the knowledge and information gained from the workshops useful.</p>
+                        <table class='table table-striped'>
+                            <tr><td>Yes</td><td><?php echo htmlspecialchars( $krResult[0]['Yes'] ); ?></td></tr>
+                            <tr><td>No</td><td><?php echo htmlspecialchars( $krResult[0]['No'] ); ?></td></tr>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            </section> <!-- close section#extraInfo -->
             <div class="row mt-2 mb-4">
                 <div class="col d-flex justify-content-center">
-                    <a href="#" class="btn btn-primary btn-sm" role="button"> -- Show More Information -- </a>
+                    <a id="showMoreInfo" href="#" class="btn btn-primary btn-sm" role="button"> -- Show More Information -- </a>
                 </div>
             </div>
         <?php

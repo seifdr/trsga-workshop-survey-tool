@@ -8537,10 +8537,6 @@ a.text-gray-dark:focus, a.text-gray-dark:hover {
   }
 }
 
-body {
-  border: 1px solid red;
-}
-
 table th {
   text-align: center;
 }
@@ -8571,6 +8567,14 @@ table#reportHeading td:nth-child(odd) {
 }
 table#reportHeading td:nth-child(even) {
   text-align: left;
+}
+
+section#extraInfo {
+  display: none;
+}
+
+a#showMoreInfo:active, a#showMoreInfo:focus {
+  color: #fff;
 }
 
 table#reportBody td {

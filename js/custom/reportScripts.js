@@ -40,6 +40,21 @@ $(document).ready( function(){
         return false;
     });
 
+    $('a#showMoreInfo').click( function(){
+
+        var x = $(this);
+
+        $('section#extraInfo').slideToggle( function() {
+            if( x.text().trim() == "-- Show More Information --" ){
+                x.text("-- Show Less Information --");
+            } else {
+                x.text("-- Show More Information --");
+            }
+        });
+
+        return false;
+    });
+
     // Pie chart on ws dashboard
     google.charts.load('current', {packages: ['corechart', 'line']});
     google.charts.setOnLoadCallback(drawLineChart);

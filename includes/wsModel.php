@@ -336,36 +336,7 @@ class WorkshopSurvey extends DatabaseObject
                     
                     FROM ". static::$table_name ." AS ws ";
 
-                    $whereCnt = 0;
-
-                    if( !empty( $this->counselorCode ) ){
-                        $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
-                        $whereCnt++;
-                    }
-
-                    if( !empty( $this->monthNumber ) ){
-                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-                        $sql .= " ws.survey_month_num = '". $this->monthNumber ."' ";
-                        $whereCnt++;
-                    }
-
-                    if( !empty( $this->year ) ){
-                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-                        $sql .= " ws.survey_yr = '". $this->year ."' ";
-                        $whereCnt++;
-                    }
-
-                    if( !empty( $this->fy ) ){
-                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-                        $sql .= " ws.fiscal_yr = '". $this->fy ."' ";
-                        $whereCnt++;
-                    }
-                    
-                    if( !empty( $this->fq ) ){
-                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-                        $sql .= " ws.fiscal_qtr = '". $this->fq ."' ";
-                        $whereCnt++;
-                    }
+                     $sql = $this->addWhereCatsToSql( $sql );
 
         $result = array(); 
 
@@ -384,10 +355,10 @@ class WorkshopSurvey extends DatabaseObject
                         ROUND( AVG( question3b ), 2) as 'Plans of Retiremnet/Options' ,
                         ROUND( AVG( question3c ), 2) as 'Beneficiary Information',
                         ROUND( AVG( question3d ), 2) as 'Service Credit'
-                    FROM ". static::$table_name ."
-                    WHERE fiscal_yr = ". $this->fy ." ";
+                    FROM ". static::$table_name ." AS ws ";
 
-        
+       $sql = $this->addWhereCatsToSql( $sql );
+
         $result = array(); 
 
         foreach ( $database->query( $sql ) as $row ) {
@@ -405,8 +376,9 @@ class WorkshopSurvey extends DatabaseObject
                         SUM( IF( question4 != 1, 1, 0 ) ) as No,
                         SUBSTRING( ROUND( ( SUM( IF( question4 = 1, 1, 0 ) ) / ( COUNT(*) ) ), 3) * 100, 1, 4 )  as YesPerc,
                         count(*) as test
-                    FROM ". static::$table_name ."
-                    WHERE fiscal_yr = ". $this->fy ." ";
+                    FROM ". static::$table_name . " as WS ";
+
+        $sql = $this->addWhereCatsToSql( $sql );
 
         $result = array(); 
 
@@ -418,7 +390,41 @@ class WorkshopSurvey extends DatabaseObject
     }
     
     
-    
+    private function addWhereCatsToSql( $sql ){
+        //table previous must be aliased as ws
+         $whereCnt = 0;
+
+        if( !empty( $this->counselorCode ) ){
+            $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
+            $whereCnt++;
+        }
+
+        if( !empty( $this->monthNumber ) ){
+            $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+            $sql .= " ws.survey_month_num = '". $this->monthNumber ."' ";
+            $whereCnt++;
+        }
+
+        if( !empty( $this->year ) ){
+            $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+            $sql .= " ws.survey_yr = '". $this->year ."' ";
+            $whereCnt++;
+        }
+
+        if( !empty( $this->fy ) ){
+            $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+            $sql .= " ws.fiscal_yr = '". $this->fy ."' ";
+            $whereCnt++;
+        }
+        
+        if( !empty( $this->fq ) ){
+            $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+            $sql .= " ws.fiscal_qtr = '". $this->fq ."' ";
+            $whereCnt++;
+        }
+
+        return $sql;
+    }
 
     
     // SURVEY REPORT FUNCTIONS

@@ -122,8 +122,8 @@ gulp.task('browser-sync', function() {
     //initialize browsersync
     browserSync.init(files, {
 	    //browsersync with a php server
-	    proxy: "http://localhost:8888/ws/",
-		//proxy: "http://localhost/ws/",
+	    // proxy: "http://localhost:8888/ws/",
+		proxy: "http://localhost/ws/",
 	    notify: false
     });
 });
