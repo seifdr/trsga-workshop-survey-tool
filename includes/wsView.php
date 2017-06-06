@@ -46,6 +46,40 @@ class WorkshopSurveyViews
 
     }
 
+    public function survey_by_type(){
+        $result = $this->wsModel->get_survey_by_type();
+
+        $chartArr = array();
+
+        array_push( $chartArr, array('Workshop Type', 'Count', (object) array( 'role' => 'annotation' ) ) ); 
+
+        foreach ( $result[0] as $key => $value ) {
+             array_push( $chartArr, array( NULL, (int) $value, htmlspecialchars( $key )  ) );
+        }
+
+        $barChartObj = json_encode( $chartArr );
+
+        ?>
+            <div class="col-12 col-sm-12 col-md-4">
+                <h5>FY Workshop Types</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped text-left">
+                        <tbody>
+                            <?php 
+                                foreach ($result[0] as $key => $value) {
+                                    echo "<tr><th>". htmlspecialchars( $key ) ."</th><td>". htmlspecialchars( $value ) ."</td></tr>";
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-8">
+                <div id="barChart" data-chart='<?php echo $barChartObj; ?>'></div>
+            </div>
+        <?php 
+    }
+
     public function workshop_rating(){
         global $database;
 
@@ -547,7 +581,20 @@ class WorkshopSurveyViews
             <form class="form-inline" method="get" action="report.php" >
                 <input type="hidden" name="action" value="customReport" />
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
+                    <option value="all" >All Workshop Types</option>
+                    <?php 
+
+                        foreach ($this->wsModel->typesKey as $key => $type) {
+                           echo "<option ";
+                                if( $this->wsModel->type == $key &&  !is_null( $this->wsModel->type ) ){ echo " selected "; }
+                           echo " value='". $type ."' >". $type ." </option>";
+                        }
+
+                    ?>
+                </select>
+
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
                     <option value="all" >All Counselors</option>
                     <optgroup label="Active">
                     <?php 
@@ -573,7 +620,7 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="month" >
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="month" >
                     <option value="all">All Months</option>
                     <optgroup label="By Month">
                     <?php 
@@ -604,7 +651,7 @@ class WorkshopSurveyViews
                     </optgroup>
                 </select>
 
-                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="yr">
+                 <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="yr">
                     <option value="all" >All Years</option>
                     <?php 
                         foreach ($years as $year ) {
@@ -619,7 +666,7 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="fy">
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="fy">
                     <option value="all" >All FY Years</option>
                     <?php 
                         foreach ($fiscal_years as $fyear ) {
@@ -634,7 +681,7 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
+                 <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
                     <option value="all" >All Surveys</option>
                     <?php 
 
@@ -933,6 +980,10 @@ class WorkshopSurveyViews
                                             <tr>
                                                 <th>TRS Presentor Name</th>
                                                 <td><?php echo htmlentities( $result['FirstName'] . " " . $result['LastName'] ); ?></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Workshop Type</th>
+                                                <td><?php echo $this->wsModel->typesKey[ htmlentities( $result['type'] ) ] ; ?></td>
                                             </tr>
                                         </tbody>
                                     </table>

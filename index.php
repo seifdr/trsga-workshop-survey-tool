@@ -25,6 +25,13 @@
                 <div class="col mb-4">
                     <a href="report.php">View Workshop Survey Data</a> | <a href="remove.php">Remove Survey</a>
                 </div>
+            </div>
+            <div class="row mb-4" id="typeRow" >
+                <?php 
+
+                    $wsView->survey_by_type();
+
+                ?>
             </div>     
             <div class="row mb-4">
                 <div class="col-12 col-sm-6">

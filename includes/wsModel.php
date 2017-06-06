@@ -7,7 +7,7 @@ class WorkshopSurvey extends DatabaseObject
 {
 
     protected static $table_name = "workshopSurvey17";	
-	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'removed', 'FirstName', 'LastName');
+	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'type', 'removed', 'FirstName', 'LastName');
 	public static $month_array = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December"); 
 
     public $id;
@@ -32,6 +32,8 @@ class WorkshopSurvey extends DatabaseObject
     public $fiscal_yr;
     public $name;
     public $location;
+    public $type;
+    public $workshopType;
     public $removed;
 
     //counselor info
@@ -57,6 +59,13 @@ class WorkshopSurvey extends DatabaseObject
     public $currentYear;
 
     public $workshopTypes = array( 'This is my first TRS event', 'One-on-one Counseling', 'Half-Day Seminar', 'Pre-Retirement Workshop', 'Mid-Career Workshop', 'New Hire Workshop' );
+
+    public $typesKey = array(
+        0 => 'Half-Day Seminar',
+        1 => 'Pre-Retirement Workshop',
+        2 => 'Mid-Career Workshop',
+        3 => 'New Hire Workshop'
+    );
 
     function __construct() {
         
@@ -97,6 +106,26 @@ class WorkshopSurvey extends DatabaseObject
                     FROM workshopSurvey17 
                     WHERE fiscal_yr = '". $this->fy ." AND removed != 1'
                ";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+        
+    }
+
+    public function get_survey_by_type(){
+        global $database;
+
+        $sql = "SELECT 
+             COUNT( IF( ( ws.type = '0' ), 1, NULL) ) as 'Half-Day Seminar',
+             COUNT( IF( ( ws.type = '1' ), 1, NULL) ) as 'Pre-Retirement Workshop',
+             COUNT( IF( ( ws.type = '2' ), 1, NULL) ) as 'Mid-Career Workshop',
+             COUNT( IF( ( ws.type = '3' ), 1, NULL) ) as 'New Hire Workshop'
+             FROM ". static::$table_name ." AS ws ";
 
         $result = array(); 
 

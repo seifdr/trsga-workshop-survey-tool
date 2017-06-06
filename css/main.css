@@ -8537,6 +8537,10 @@ a.text-gray-dark:focus, a.text-gray-dark:hover {
   }
 }
 
+div#typeRow > div {
+  min-height: 250px;
+}
+
 table th {
   text-align: center;
 }
