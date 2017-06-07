@@ -67,6 +67,14 @@ class WorkshopSurvey extends DatabaseObject
         3 => 'New Hire Workshop'
     );
 
+    public $colorArr = array(
+            '3366cc',
+            'dc3912',
+            'ff9900',
+            '109618',
+            '990099'
+        );
+
     function __construct() {
         
         $this->trsgaTime = new trsgaTime();
@@ -289,12 +297,29 @@ class WorkshopSurvey extends DatabaseObject
             }
         }
 
-        $sql    = "SELECT id, question1a, question1b, question1c, question1d, survey_month_num, survey_yr FROM ". static::$table_name ." WHERE " . $yearsToIncludeTxt;
+        $sql    = "SELECT id, question1a, question1b, question1c, question1d, survey_month_num, survey_yr, type FROM ". static::$table_name ." WHERE " . $yearsToIncludeTxt;
 
         $sql1   = " SELECT 
                         SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 ), 1, 0 ) ) AS passes,
                         SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 ), 1, 0 ) ) AS fails,
                         COUNT(*) as total,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 0 ), 1, 0 ) ) AS passesHalfDay,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 0 ), 1, 0 ) ) AS failsHalfDay,
+                        SUM( IF( t1.type = 0, 1, 0 ) ) as totalHalfDay,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 1 ), 1, 0 ) ) AS passesPreRet,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 1 ), 1, 0 ) ) AS failsPreRet,
+                        SUM( IF( t1.type = 1, 1, 0 ) ) as totalPreRet,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 2 ), 1, 0 ) ) AS passesMidCar,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 2 ), 1, 0 ) ) AS failsMidCar,
+                        SUM( IF( t1.type = 2, 1, 0 ) ) as totalMidCar,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 3 ), 1, 0 ) ) AS passesNewHire,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 3 ), 1, 0 ) ) AS failsNewHire,
+                        SUM( IF( t1.type = 3, 1, 0 ) ) as totalNewHire,
+
                         survey_month_num, 
                         survey_yr FROM ( ". $sql ." ) as t1 
                             GROUP BY survey_month_num, survey_yr
@@ -311,12 +336,19 @@ class WorkshopSurvey extends DatabaseObject
         for ($i=0; $i < count($result) ; $i++) { 
             $row = $result[$i];
             $modifiedResult[$i]['percentage']       = ( ( $row['passes'] > 0 && $row['total'] > 0 ) )? $row['passes'] / $row['total'] * 100  : 0;
+
+            $modifiedResult[$i]['hdPercentage']       = ( ( $row['passesHalfDay'] > 0 && $row['totalHalfDay'] > 0 ) )? $row['passesHalfDay'] / $row['totalHalfDay'] * 100  : 0;
+
+            $modifiedResult[$i]['prPercentage']       = ( ( $row['passesPreRet'] > 0 && $row['totalPreRet'] > 0 ) )? $row['passesPreRet'] / $row['totalPreRet'] * 100  : 0;
+
+            $modifiedResult[$i]['mcPercentage']       = ( ( $row['passesMidCar'] > 0 && $row['totalMidCar'] > 0 ) )? $row['passesMidCar'] / $row['totalMidCar'] * 100  : 0;
+
+            $modifiedResult[$i]['nhPercentage']       = ( ( $row['passesNewHire'] > 0 && $row['totalNewHire'] > 0 ) )? $row['passesNewHire'] / $row['totalNewHire'] * 100  : 0;
+
             $modifiedResult[$i]['monthNum']         = $row['survey_month_num'];
             $modifiedResult[$i]['monthName']        = self::$month_array[ $row['survey_month_num'] ];
             $modifiedResult[$i]['monthYear']        = $row['survey_yr'];
         }
-
-        // $modifiedResult =
 
         return $modifiedResult;
             
@@ -778,7 +810,12 @@ class WorkshopSurvey extends DatabaseObject
         $data       = $this->survey_report( FALSE, FALSE, TRUE );
         $counts     = $this->get_survey_report_header_numbers();
 
-        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts );
+        $attresult      = $this->get_past_attendance();
+        $underResult    = $this->get_understandings();
+        $krResult       = $this->get_knowledge_useful();
+        $stResult       = $this->get_survey_by_type();
+
+        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts, 'attResult' => $attresult[0], 'underResult' => $underResult[0], 'krResult' => $krResult[0], 'stResult' => $stResult[0] );
     }
 
     public function find_previous_six_months($formatted=false, $names=false){

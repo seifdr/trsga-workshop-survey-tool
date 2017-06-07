@@ -8583,6 +8583,9 @@ section#extraInfo p {
   text-align: center;
 }
 
+div#knowledgeSkills table td {
+  width: 50%;
+}
 div#knowledgeSkills table td:nth-child(odd) {
   text-align: right;
   padding-right: 1em;
@@ -8590,6 +8593,10 @@ div#knowledgeSkills table td:nth-child(odd) {
 div#knowledgeSkills table td:nth-child(even) {
   text-align: left;
   padding-left: 1em;
+}
+
+table#surveyTypeReport td:nth-child(odd) {
+  width: 55%;
 }
 
 a#showMoreInfo:active, a#showMoreInfo:focus {

@@ -71,12 +71,12 @@ $(document).ready( function(){
             // title: 'Population of Largest U.S. Cities',
             height: 250,
             legend: 'none',
-            chartArea: { height: '75%', width: '100%'},
+            chartArea: { top: 0, height: '75%', width: '100%'},
             hAxis: {
                 // title: 'Total Population',
                 minValue: 0
             },
-            bar: {groupWidth: "400%"} 
+            bar: {groupWidth: "85%"} 
             // vAxis: {
             //     title: 'Type'
             // }
@@ -96,7 +96,7 @@ $(document).ready( function(){
         var options = {
           width: '100%',
           height: 400,
-         chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
+          chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
           //title: 'Workshop Survey Satisfaction Trending Graph (last six months)',
           //curveType: 'function',
           legend: { position: 'bottom' },

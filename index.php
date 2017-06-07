@@ -25,14 +25,7 @@
                 <div class="col mb-4">
                     <a href="report.php">View Workshop Survey Data</a> | <a href="remove.php">Remove Survey</a>
                 </div>
-            </div>
-            <div class="row mb-4" id="typeRow" >
-                <?php 
-
-                    $wsView->survey_by_type();
-
-                ?>
-            </div>     
+            </div>   
             <div class="row mb-4">
                 <div class="col-12 col-sm-6">
                     <h5>FY Workshop Rating</h5>
@@ -130,6 +123,19 @@
             <div class="row mb-4">
                 <?php $wsView->knowledge_useful(); ?>
             </div>
+            <div class="row">
+                <div class="col">
+                     <h5>Workshop Survey Reponse By Type</h5>
+                     <p>How many surveys are from each type of workshop.</p>
+                </div>
+            </div>
+            <div class="row mb-4" id="typeRow" >
+                <?php 
+
+                    $wsView->survey_by_type();
+
+                ?>
+            </div>  
         </div>
         <footer>
             <script src="js/main.js"></script>
