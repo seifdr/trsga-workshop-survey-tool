@@ -211,6 +211,8 @@ class WorkshopSurveyViews
             global $database;
 
             $result = $this->wsModel->get_survey_totals_by_FY( 'count45s');
+
+            look( $result );
             
             $all4sCounter        = 0;
             $all5sCounter        = 0; 

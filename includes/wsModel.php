@@ -250,7 +250,7 @@ class WorkshopSurvey extends DatabaseObject
     
         } elseif ( $type == 'count45s' ){
 
-            $sqlLayer2    = "SELECT t.FirstName, t.LastName, t.surveyID, COUNT( IF( ( t.question1a = '4' AND t.question1b = '4' AND t.question1c = '4' and t.question1d = '4')  , 1, NULL) ) as All_4s, COUNT( IF( ( t.question1a = '5' AND t.question1b = '5' AND t.question1c = '5' and t.question1d = '5'), 1, NULL) ) as All_5s, COUNT( IF( ( t.question1a >= '4' AND t.question1b >= '4' AND t.question1c >= '4' and t.question1d = '4'), 1, NULL) ) as All_4s_5s FROM (". $sqld .") AS t GROUP BY t.FirstName, t.LastName, t.surveyID";
+            $sqlLayer2    = "SELECT t.FirstName, t.LastName, t.surveyID, COUNT( IF( ( t.question1a = '4' AND t.question1b = '4' AND t.question1c = '4' )  , 1, NULL) ) as All_4s, COUNT( IF( ( t.question1a = '5' AND t.question1b = '5' AND t.question1c = '5' ), 1, NULL) ) as All_5s, COUNT( IF( ( t.question1a >= '4' AND t.question1b >= '4' AND t.question1c >= '4' ), 1, NULL) ) as All_4s_5s FROM (". $sqld .") AS t GROUP BY t.FirstName, t.LastName, t.surveyID";
         
         } elseif ( $type == 'fyavgs' ){
 
