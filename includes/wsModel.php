@@ -667,7 +667,11 @@ class WorkshopSurvey extends DatabaseObject
 
                     $whereCnt = 0;
 
+                    $sql .= " WHERE ws.removed != '1' ";
+                    $whereCnt = 1;
+
                     if( !empty( $this->counselorCode ) ){
+                        $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
                         $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
                         $whereCnt++;
                     }
