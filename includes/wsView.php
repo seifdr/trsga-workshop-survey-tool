@@ -46,6 +46,44 @@ class WorkshopSurveyViews
 
     }
 
+    public function survey_by_type(){
+
+        $result = $this->wsModel->get_survey_by_type();
+
+        $chartArr = array();
+
+        array_push( $chartArr, array('Workshop Type', 'Count', (object) array( 'role' => 'annotation' ), (object) array( 'role' => 'style' ) ) ); 
+
+        $counter = 0;
+
+        foreach ( $result[0] as $key => $value ) {
+            
+             array_push( $chartArr, array( NULL, (int) $value, htmlspecialchars( $key ), $this->wsModel->colorArr[ $counter ] ) );
+             $counter++;
+        }
+
+        $barChartObj = json_encode( $chartArr );
+
+        ?>
+            <div class="col-12 col-sm-12 col-md-4">
+                <div class="table-responsive">
+                    <table class="table table-striped text-left">
+                        <tbody>
+                            <?php 
+                                foreach ($result[0] as $key => $value) {
+                                    echo "<tr><th>". htmlspecialchars( $key ) ."</th><td>". htmlspecialchars( $value ) ."</td></tr>";
+                                }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-8">
+                <div id="barChart" data-chart='<?php echo $barChartObj; ?>'></div>
+            </div>
+        <?php 
+    }
+
     public function workshop_rating(){
         global $database;
 
@@ -377,10 +415,20 @@ class WorkshopSurveyViews
 
         $chartArr = array();
 
-        array_push( $chartArr, array('Month', 'Percentage') );
+        array_push( $chartArr, array('Month', 'Workshop Surverys Satifaction Percentage') );
+        //array_push( $chartArr, array('Month', 'Half Day', 'Pre-Retirement', 'Mid-Career', 'New Hire', 'All') );
 
-        foreach ( $result as $row ) {
-             array_push( $chartArr, array( $row['monthName'], round( $row['percentage'], 2 ) ) );
+        foreach ( $result as $row ) { 
+             array_push( $chartArr, 
+                array( 
+                    $row['monthName'],  
+                    // round( $row['hdPercentage'], 2), 
+                    // round( $row['prPercentage'], 2 ), 
+                    // round( $row['mcPercentage'], 2 ), 
+                    // round( $row['nhPercentage'], 2 ),
+                    round( $row['percentage'], 2 )
+                    ) 
+                );
         }
 
         $lineChartObj = json_encode( $chartArr );
@@ -547,7 +595,20 @@ class WorkshopSurveyViews
             <form class="form-inline" method="get" action="report.php" >
                 <input type="hidden" name="action" value="customReport" />
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
+                    <option value="all" >All Workshop Types</option>
+                    <?php 
+
+                        foreach ($this->wsModel->typesKey as $key => $type) {
+                           echo "<option ";
+                                if( $this->wsModel->type == $key &&  !is_null( $this->wsModel->type ) ){ echo " selected "; }
+                           echo " value='". $type ."' >". $type ." </option>";
+                        }
+
+                    ?>
+                </select>
+
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
                     <option value="all" >All Counselors</option>
                     <optgroup label="Active">
                     <?php 
@@ -573,7 +634,7 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="month" >
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="month" >
                     <option value="all">All Months</option>
                     <optgroup label="By Month">
                     <?php 
@@ -604,7 +665,7 @@ class WorkshopSurveyViews
                     </optgroup>
                 </select>
 
-                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="yr">
+                 <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="yr">
                     <option value="all" >All Years</option>
                     <?php 
                         foreach ($years as $year ) {
@@ -619,7 +680,7 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="fy">
+                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="fy">
                     <option value="all" >All FY Years</option>
                     <?php 
                         foreach ($fiscal_years as $fyear ) {
@@ -634,7 +695,7 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                 <select class="custom-select mb-2 mr-sm-2 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
+                 <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="offset" >
                     <option value="all" >All Surveys</option>
                     <?php 
 
@@ -699,6 +760,8 @@ class WorkshopSurveyViews
 
             $krResult       = $this->wsModel->get_knowledge_useful();
 
+            $stResult       = $this->wsModel->get_survey_by_type();
+
         ?>
         <section id="extraInfo" name="extraInfo">
                 <div class="row">
@@ -738,13 +801,25 @@ class WorkshopSurveyViews
                         </table>
                     </div>
                 </div>
-                <div id="knowledgeSkills" class="row mt-4 d-flex justify-content-center">
+                <!--d-flex justify-content-center-->
+                <div id="knowledgeSkills" class="row mt-4">
                     <div class="col-12 col-sm-6 ">
-                        <p><strong>Knowledge and Skills gained will be useful</strong><br />
+                        <p><strong>Knowledge and Skills gained will be useful</strong></p>
                         <table>
                             <tr><td>Yes</td><td><?php echo htmlspecialchars( $krResult[0]['Yes'] ); ?></td></tr>
                             <tr><td>No</td><td><?php echo htmlspecialchars( $krResult[0]['No'] ); ?></td></tr>
                         </table>
+                    </div>
+                    <div class="col-12 col-sm-6 ">
+                        <p><strong>Workshop Survey Reponse By Type</strong></p>
+                           <?php //look( $stResult ); ?>
+                           <table id="surveyTypeReport"> 
+                            <?php 
+                                foreach ($stResult[0] as $key => $value) {
+                                    echo "<tr><td>". htmlspecialchars( $key ) ."</td><td>". htmlspecialchars( $value ) ."</td></tr>";
+                                }
+                            ?>
+                            </table>
                     </div>
                 </div>
             </section> <!-- close section#extraInfo -->
@@ -933,6 +1008,10 @@ class WorkshopSurveyViews
                                             <tr>
                                                 <th>TRS Presentor Name</th>
                                                 <td><?php echo htmlentities( $result['FirstName'] . " " . $result['LastName'] ); ?></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Workshop Type</th>
+                                                <td><?php echo $this->wsModel->typesKey[ htmlentities( $result['type'] ) ] ; ?></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1128,6 +1207,8 @@ class WorkshopSurveyViews
     public function generate_csv(){
         $result = $this->wsModel->get_csv_report();
 
+        // look( $result );
+
         // look( $result['Avgs'][0] );
 
         // look( $result['Data'] );
@@ -1138,9 +1219,7 @@ class WorkshopSurveyViews
 
         $sql_explain = $this->sql_to_text();
 
-
         // create a file pointer connected to the output stream
-
 
 	    $output = fopen('php://output', 'w');
 
@@ -1153,6 +1232,25 @@ class WorkshopSurveyViews
 			fputcsv($output, array('Total Surveys: ', $result['Counts']['TotalCount'], ' ', 'Count of 5\'s: ', $result['Counts']['all5s'], ' ', 'Survey Satisfaction Perentage: ', $result['Counts']['surveySatPercentage']. '%'));
 			fputcsv($output, array('Total Fails: ', $result['Counts']['Fails'], ' ', 'Count of 4\'s: ', $result['Counts']['all4s'], ' ', 'Average Survey Score: ', $result['Counts']['avgScore'] ));
 			fputcsv($output, array(' ', ' ', ' ', 'Count of 4\'s and 5\'s: ', $result['Counts']['all45s'], ' ', ' ', ' ' ));
+
+
+            $legend = array(
+                'N/A',
+                'Not sure',
+                'About the same',
+                'Increased a little',
+                'Increased a lot',
+            );
+  
+            fputcsv($output, array(' '));
+            fputcsv($output, array('Past Events Attended', '', '', '', 'Understanding Of The Following Topics', '','','', 'Knowledge and Skills gained will be useful', '', '', 'Workshop Survey Reponses By Type'));
+            fputcsv($output, array('Events', 'Percentage', 'Total', '', 'Topics', 'Avg Value', 'Avg Report', '', '', '' ));
+            fputcsv($output, array('First TRS Event', $result['attResult']['First TRS Event'] . "%", $result['attResult']['First TRS Event Count'], '',                             'Eligibility Requirements', $result['underResult']['Eligibility Requirements'], $legend[ round( $result['underResult']['Eligibility Requirements'] ) ]             ,'', 'Yes', $result['krResult']['Yes'], '', 'Half-Day Seminar', $result['stResult']['Half-Day Seminar'] ) );
+            fputcsv($output, array('One-on-one Couseling', $result['attResult']['One-on-one Couseling'] . "%", $result['attResult']['One-on-one Couseling Count'], '',              'Plans of Retiremnet/Options', $result['underResult']['Plans of Retiremnet/Options'], $legend[ round( $result['underResult']['Plans of Retiremnet/Options'] ) ]    ,'', 'No', $result['krResult']['No'],   '', 'Pre-Retirement Workshop', $result['stResult']['Pre-Retirement Workshop'] ) );
+            fputcsv($output, array('Half-Day Seminar', $result['attResult']['Half-Day Seminar'] . "%", $result['attResult']['Half-Day Seminar Count'], '',                          'Beneficiary Information', $result['underResult']['Beneficiary Information'] , $legend[ round( $result['underResult']['Beneficiary Information'] ) ]               ,'',   '','',                           '', 'Mid-Career Workshop', $result['stResult']['Mid-Career Workshop'] ) );
+            fputcsv($output, array('Pre-Retirement Workshop', $result['attResult']['Pre-Retirement Workshop'] . "%", $result['attResult']['Pre-Retirement Workshop Count'], '',     'Service Credit', $result['underResult']['Service Credit'], $legend[ round( $result['underResult']['Service Credit'] ) ]                                           ,'',   '','',                           '', 'New Hire Workshop', $result['stResult']['New Hire Workshop']  ) );
+            fputcsv($output, array('Mid-Career Workshop', $result['attResult']['Mid-Career Workshop'] . "%", $result['attResult']['Mid-Career Workshop Count'] ) );
+            fputcsv($output, array('New Hire Workshop', $result['attResult']['New Hire Workshop'] . "%", $result['attResult']['New Hire Workshop Count'] ) );
 			fputcsv($output, array(' '));
 
             fputcsv($output, array('SurveryID',  'Event Date',  'Location', 'Counselor', 'Pass or Fail', 'The presenter was knowledgable', 'The presenter has an effective presentation style.', 'The workshop content was organized and easy to follow', 'Please rate the workshop overall', 'If any, which TRS events have you attened in the past?', 'Eligility Requirements', 'Plans of Retirement/Options', 'Beneficiary Information', 'Service Credit', 'The knowledge and skills I gained from this group counseling will be usefull when applying for retirement.', 'What other topics would you like us to cover in future workshops?', 'Please tell us what you found most valuable about this workshop?'        ));

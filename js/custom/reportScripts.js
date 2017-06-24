@@ -56,9 +56,36 @@ $(document).ready( function(){
     });
 
     // Pie chart on ws dashboard
-    google.charts.load('current', {packages: ['corechart', 'line']});
+    google.charts.load('current', {packages: ['corechart', 'bar', 'line']});
+    google.charts.setOnLoadCallback(drawBarChart);
     google.charts.setOnLoadCallback(drawLineChart);
     google.charts.setOnLoadCallback(drawPieChart);
+    
+    function drawBarChart() {
+
+        var workshopSurveyTypeChartData = $('div#barChart').data('chart');
+        
+        var data = google.visualization.arrayToDataTable( workshopSurveyTypeChartData );
+
+        var options = {
+            // title: 'Population of Largest U.S. Cities',
+            height: 250,
+            legend: 'none',
+            chartArea: { top: 0, height: '75%', width: '100%'},
+            hAxis: {
+                // title: 'Total Population',
+                minValue: 0
+            },
+            bar: {groupWidth: "85%"} 
+            // vAxis: {
+            //     title: 'Type'
+            // }
+        };
+
+      var chart = new google.visualization.BarChart(document.getElementById('barChart'));
+
+      chart.draw(data, options);
+    }
 
     function drawLineChart() {
 
@@ -69,7 +96,7 @@ $(document).ready( function(){
         var options = {
           width: '100%',
           height: 400,
-         chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
+          chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
           //title: 'Workshop Survey Satisfaction Trending Graph (last six months)',
           //curveType: 'function',
           legend: { position: 'bottom' },

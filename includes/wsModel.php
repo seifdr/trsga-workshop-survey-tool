@@ -7,7 +7,7 @@ class WorkshopSurvey extends DatabaseObject
 {
 
     protected static $table_name = "workshopSurvey17";	
-	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'removed', 'FirstName', 'LastName');
+	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'type', 'removed', 'FirstName', 'LastName');
 	public static $month_array = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December"); 
 
     public $id;
@@ -32,6 +32,8 @@ class WorkshopSurvey extends DatabaseObject
     public $fiscal_yr;
     public $name;
     public $location;
+    public $type;
+    public $workshopType;
     public $removed;
 
     //counselor info
@@ -57,6 +59,21 @@ class WorkshopSurvey extends DatabaseObject
     public $currentYear;
 
     public $workshopTypes = array( 'This is my first TRS event', 'One-on-one Counseling', 'Half-Day Seminar', 'Pre-Retirement Workshop', 'Mid-Career Workshop', 'New Hire Workshop' );
+
+    public $typesKey = array(
+        0 => 'Half-Day Seminar',
+        1 => 'Pre-Retirement Workshop',
+        2 => 'Mid-Career Workshop',
+        3 => 'New Hire Workshop'
+    );
+
+    public $colorArr = array(
+            '3366cc',
+            'dc3912',
+            'ff9900',
+            '109618',
+            '990099'
+        );
 
     function __construct() {
         
@@ -97,6 +114,26 @@ class WorkshopSurvey extends DatabaseObject
                     FROM workshopSurvey17 
                     WHERE fiscal_yr = '". $this->fy ." AND removed != 1'
                ";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+        
+    }
+
+    public function get_survey_by_type(){
+        global $database;
+
+        $sql = "SELECT 
+             COUNT( IF( ( ws.type = '0' ), 1, NULL) ) as 'Half-Day Seminar',
+             COUNT( IF( ( ws.type = '1' ), 1, NULL) ) as 'Pre-Retirement Workshop',
+             COUNT( IF( ( ws.type = '2' ), 1, NULL) ) as 'Mid-Career Workshop',
+             COUNT( IF( ( ws.type = '3' ), 1, NULL) ) as 'New Hire Workshop'
+             FROM ". static::$table_name ." AS ws ";
 
         $result = array(); 
 
@@ -260,12 +297,29 @@ class WorkshopSurvey extends DatabaseObject
             }
         }
 
-        $sql    = "SELECT id, question1a, question1b, question1c, question1d, survey_month_num, survey_yr FROM ". static::$table_name ." WHERE " . $yearsToIncludeTxt;
+        $sql    = "SELECT id, question1a, question1b, question1c, question1d, survey_month_num, survey_yr, type FROM ". static::$table_name ." WHERE " . $yearsToIncludeTxt;
 
         $sql1   = " SELECT 
                         SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 ), 1, 0 ) ) AS passes,
                         SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 ), 1, 0 ) ) AS fails,
                         COUNT(*) as total,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 0 ), 1, 0 ) ) AS passesHalfDay,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 0 ), 1, 0 ) ) AS failsHalfDay,
+                        SUM( IF( t1.type = 0, 1, 0 ) ) as totalHalfDay,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 1 ), 1, 0 ) ) AS passesPreRet,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 1 ), 1, 0 ) ) AS failsPreRet,
+                        SUM( IF( t1.type = 1, 1, 0 ) ) as totalPreRet,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 2 ), 1, 0 ) ) AS passesMidCar,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 2 ), 1, 0 ) ) AS failsMidCar,
+                        SUM( IF( t1.type = 2, 1, 0 ) ) as totalMidCar,
+
+                        SUM( IF( ( t1.question1a > 3 AND t1.question1b > 3 AND t1.question1c > 3 AND t1.type = 3 ), 1, 0 ) ) AS passesNewHire,
+                        SUM( IF( ( t1.question1a <= 3 OR t1.question1b <= 3 OR t1.question1c <= 3 AND t1.type = 3 ), 1, 0 ) ) AS failsNewHire,
+                        SUM( IF( t1.type = 3, 1, 0 ) ) as totalNewHire,
+
                         survey_month_num, 
                         survey_yr FROM ( ". $sql ." ) as t1 
                             GROUP BY survey_month_num, survey_yr
@@ -282,12 +336,19 @@ class WorkshopSurvey extends DatabaseObject
         for ($i=0; $i < count($result) ; $i++) { 
             $row = $result[$i];
             $modifiedResult[$i]['percentage']       = ( ( $row['passes'] > 0 && $row['total'] > 0 ) )? $row['passes'] / $row['total'] * 100  : 0;
+
+            $modifiedResult[$i]['hdPercentage']       = ( ( $row['passesHalfDay'] > 0 && $row['totalHalfDay'] > 0 ) )? $row['passesHalfDay'] / $row['totalHalfDay'] * 100  : 0;
+
+            $modifiedResult[$i]['prPercentage']       = ( ( $row['passesPreRet'] > 0 && $row['totalPreRet'] > 0 ) )? $row['passesPreRet'] / $row['totalPreRet'] * 100  : 0;
+
+            $modifiedResult[$i]['mcPercentage']       = ( ( $row['passesMidCar'] > 0 && $row['totalMidCar'] > 0 ) )? $row['passesMidCar'] / $row['totalMidCar'] * 100  : 0;
+
+            $modifiedResult[$i]['nhPercentage']       = ( ( $row['passesNewHire'] > 0 && $row['totalNewHire'] > 0 ) )? $row['passesNewHire'] / $row['totalNewHire'] * 100  : 0;
+
             $modifiedResult[$i]['monthNum']         = $row['survey_month_num'];
             $modifiedResult[$i]['monthName']        = self::$month_array[ $row['survey_month_num'] ];
             $modifiedResult[$i]['monthYear']        = $row['survey_yr'];
         }
-
-        // $modifiedResult =
 
         return $modifiedResult;
             
@@ -749,7 +810,12 @@ class WorkshopSurvey extends DatabaseObject
         $data       = $this->survey_report( FALSE, FALSE, TRUE );
         $counts     = $this->get_survey_report_header_numbers();
 
-        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts );
+        $attresult      = $this->get_past_attendance();
+        $underResult    = $this->get_understandings();
+        $krResult       = $this->get_knowledge_useful();
+        $stResult       = $this->get_survey_by_type();
+
+        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts, 'attResult' => $attresult[0], 'underResult' => $underResult[0], 'krResult' => $krResult[0], 'stResult' => $stResult[0] );
     }
 
     public function find_previous_six_months($formatted=false, $names=false){
