@@ -101,9 +101,43 @@ class WorkshopSurveyViews
                     <td><?php echo $database->escape_values( $result[0]['questDavg'] ); ?></td>
                 </tbody>
             </table>
-        </div>
+         </div>
         <?php
         
+    }
+
+    public function numberPercentages( $num = NULL ){
+             $result = $this->wsModel->getNumberPercentages()[0]; 
+
+             $all4s  = htmlspecialchars( $result['all4s'] ) . "<br /><br /><small>". htmlspecialchars( $result['4perc'] ) ."%</small>";
+             $all5s  = htmlspecialchars( $result['all5s'] ) . "<br /><br /><small>". htmlspecialchars( $result['5perc'] ) ."%</small>";
+             $all45s = htmlspecialchars( $result['all45s'] ) . "<br /><br /><small>". htmlspecialchars( $result['45perc'] ) ."%</small>";
+
+        ?>
+
+
+                <div class="col-12 col-sm-12">
+                    <h5>FY Workshop Counts</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                <th>All 4's</th>
+                                <th>All 5's</th>
+                                <th>All 4s &amp; 5s</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td><?php echo $all4s; ?></td>
+                                <td><?php echo $all5s; ?></td>
+                                <td><?php echo $all45s; ?></td>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+        <?php
     }
 
     public function survey_counts_by_planner( $type = NULL ){
@@ -195,6 +229,7 @@ class WorkshopSurveyViews
                 </thead>
                 <tbody>
                     <?php 
+
                         foreach ($result as $row) {
                                 $zeros = ( ( $row['All_4s'] == 0 ) && ( $row['All_5s'] == 0 ) && ( $row['All_4s_5s'] == 0 ) )? TRUE : FALSE;
                             ?>

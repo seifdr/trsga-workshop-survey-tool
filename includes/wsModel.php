@@ -125,6 +125,41 @@ class WorkshopSurvey extends DatabaseObject
         
     }
 
+    public function getNumberPercentages(){
+        global $database;
+
+        $sql = "SELECT COUNT(*) as tot, SUM( 
+                        IF( ( ws.question1a = 4 AND ws.question1b = 4 AND  ws.question1c = 4 ), 1, 0 ) 
+                       ) AS 'all4s',
+                       SUM( 
+                        IF( (  ws.question1a = 5 AND  ws.question1b = 5 AND  ws.question1c = 5 ), 1, 0 ) 
+                       ) AS 'all5s',
+                       SUM(
+                           IF( (  ws.question1a > 3 AND  ws.question1b > 3 AND  ws.question1c > 3 ), 1, 0 ) 
+                          ) AS 'all45s'    
+                      FROM ". static::$table_name ." AS ws ";
+
+                      $sql = $this->addWhereCatsToSql( $sql );
+
+        $sql = "SELECT *, 
+            ( t2.all45s - ( t2.all5s + t2.all4s ) ) as 'allu45s',
+            ROUND( ( t2.all4s / t2.tot ) * 100, 2 ) as '4perc',
+            ROUND( ( t2.all5s / t2.tot ) * 100, 2 ) as '5perc',
+            ROUND( ( t2.all45s / t2.tot ) * 100, 2 ) as '45perc'
+            FROM ( ". $sql .") as t2 ";
+
+        $sql = "SELECT *, ROUND( ( t3.allu45s / t3.tot ) * 100, 2 ) as 'u45perc' FROM (". $sql .") AS t3";
+
+        $result = array(); 
+
+        foreach ( $database->query( $sql ) as $row ) {
+            array_push( $result, $row );
+        }
+
+        return $result;
+
+    }
+
     public function get_survey_by_type(){
         global $database;
 
@@ -449,14 +484,17 @@ class WorkshopSurvey extends DatabaseObject
 
         return $result;
     }
-    
-    
+
     private function addWhereCatsToSql( $sql ){
         //table previous must be aliased as ws
          $whereCnt = 0;
 
+        $sql .= " WHERE ws.removed != '1' "; 
+        $whereCnt = 1;
+
         if( !empty( $this->counselorCode ) ){
-            $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
+            $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
+            $sql .= " ws.rep_code = '". $this->counselorCode ."' ";
             $whereCnt++;
         }
 

@@ -38,6 +38,9 @@
                 </div>
             </div>
             <div class="row mb-4">
+                <?php  $wsView->numberPercentages();  ?>
+            </div>
+            <div class="row mb-4">
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6">
                     <h5>Survey Counts By Planner</h5>
                     <?php 
