@@ -356,6 +356,21 @@ class WorkshopSurveyViews
                 </thead>
                 <tbody>
                     <?php 
+
+                        //this is really $td2, $td3, $td4, $td5
+                        $qtr1Totals = 
+                        $qtr1TotalsCounter =
+                        $qtr2Totals = 
+                        $qtr2TotalsCounter =
+                        $qtr3Totals =
+                        $qtr3TotalsCounter =
+                        $qtr4Totals =
+                        $qtr4TotalsCounter =
+                        $qtr5Totals = 
+                        $qtr5TotalsCounter = 
+                        $qtr6Totals = 
+                        $qtr6TotalsCounter = 0;
+
                         foreach ($result as $row) {
                             
                             $zeros = ( is_null( $row['Tot_Perc'] ) )? TRUE : FALSE;
@@ -368,22 +383,9 @@ class WorkshopSurveyViews
                                 $td6     = $database->escape_values( $row['Tot_Perc'] );
                                 $mod_td6 = round( $td6 );
 
-                                if(($mod_td6) >= 98){
-                                    $gradeTxt = " Exceptional ";
-                                    $passing  = TRUE;
-                                } elseif (($mod_td6) >= 95){
-                                    $gradeTxt = " Exceeds ";
-                                    $passing  = TRUE;
-                                } elseif (($mod_td6) >= 89){
-                                    $gradeTxt = " Meets ";
-                                    $passing  = TRUE;
-                                } elseif ($mod_td6 != 0) {
-                                    $gradeTxt = "Does Not Meet";
-                                    $passing  = FALSE;
-                                } else {
-                                    $gradeTxt = " -- ";
-                                    $passing  = TRUE;
-                                }
+                                $gradeResult = $this->gradeSurveySatPerctages( $mod_td6 );
+                                $gradeTxt    = $gradeResult[0];
+                                $passing     = $gradeResult[1];
                             ?>
                                 <tr <?php 
                                         if( !$passing ){
@@ -391,32 +393,72 @@ class WorkshopSurveyViews
                                         } elseif ( $zeros ){ echo ' class="zero" '; } 
                                     ?> >
                                     <td><?php echo $td1; ?></td>
-                                    <td><?php echo !empty( $td2 )? $td2 . "%" : '--';  ?></td>
-                                    <td><?php echo !empty( $td3 )? $td3 . "%" : '--';  ?></td>
-                                    <td><?php echo !empty( $td4 )? $td4 . "%" : '--';  ?></td>
-                                    <td><?php echo !empty( $td5 )? $td5 . "%" : '--';  ?></td>
-                                    <td><?php echo !empty( $td6 )? $td6 . "%" : '--';  ?></td>
+                                    <td><?php 
+                                        if( !empty( $td2 ) ){
+                                            echo $td2 . "%";
+                                            $qtr1Totals += $td2;
+                                            $qtr1TotalsCounter++;
+                                        } else {
+                                            echo '--';
+                                        }         
+                                    ?></td>
+                                    <td><?php 
+                                        if( !empty( $td3 ) ){
+                                            echo $td3 . "%";
+                                            $qtr2Totals += $td3;
+                                            $qtr2TotalsCounter++;
+                                        } else {
+                                            echo '--';
+                                        }  
+                                    ?></td>  
+                                    <td><?php 
+                                        if( !empty( $td4 ) ){
+                                            echo $td4 . "%";
+                                            $qtr3Totals += $td4;
+                                            $qtr3TotalsCounter++;
+                                        } else {
+                                            echo '--';
+                                        }  
+                                    ?></td>
+                                    <td><?php 
+                                        if( !empty( $td5 ) ){
+                                            echo $td5 . "%";
+                                            $qtr4Totals += $td5;
+                                            $qtr4TotalsCounter++;
+                                        } else {
+                                            echo '--';
+                                        }  
+                                    ?></td>    
+                                    <td><?php 
+                                        if( !empty( $td6 ) ){
+                                            echo $td6 . "%";
+                                            $qtr5Totals += $td6;
+                                            $qtr5TotalsCounter++;
+                                        } else {
+                                            echo '--';
+                                        }  
+                                    ?></td>
                                     <td><?php echo  $gradeTxt ?></td>
                                 </tr>
-
                             <?php
-                                    // $q1aAvg_counter       += $row['q1a_avg'];
-                                    // $q1bAvg_counter       += $row['q1b_avg'];
-                                    // $q1cAvg_counter       += $row['q1c_avg'];
-                                    // $total_avg            += $row['total_avg'];
-
-                                    // if( !$zeros ){ $nonZeroRowCounter++; }
                         } //end row
                     
                     ?>
                     <tr class="totals">
                         <td>TOTALS</td>
-                        <td><?php //echo round( $database->escape_values( $q1aAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
-                        <td><?php //echo round( $database->escape_values( $q1bAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
-                        <td><?php //echo round( $database->escape_values( $q1cAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
-                        <td><?php //echo round( $database->escape_values( $q1cAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
-                        <td><?php //echo round( $database->escape_values( $q1cAvg_counter ) / $nonZeroRowCounter, 2); ?></td>
-                        <td><?php //echo round( $database->escape_values( $total_avg ) / $nonZeroRowCounter, 2 ); ?></td>
+                        <td><?php echo ( $qtr1TotalsCounter > 0 )? number_format( round( $qtr1Totals / $qtr1TotalsCounter, 2 ), 2 ) . "%" : '--'; ?></td>
+                        <td><?php echo ( $qtr2TotalsCounter > 0 )? number_format( round( $qtr2Totals / $qtr2TotalsCounter, 2 ), 2 ) . "%" : '--'; ?></td>
+                        <td><?php echo ( $qtr3TotalsCounter > 0 )? number_format( round( $qtr3Totals / $qtr3TotalsCounter, 2 ), 2 ). "%" : '--'; ?></td>
+                        <td><?php echo ( $qtr4TotalsCounter > 0 )? number_format( round( $qtr4Totals / $qtr4TotalsCounter, 2 ), 2 ). "%" : '--'; ?></td>
+                        <td><?php echo ( $qtr5TotalsCounter > 0 )? number_format( round( $qtr5Totals / $qtr5TotalsCounter, 2 ), 2 ) . "%" : '--'; ?></td>
+                        <td><?php 
+                                if( $qtr5TotalsCounter > 0 ){ 
+                                    echo $this->gradeSurveySatPerctages( round( $qtr5Totals / $qtr5TotalsCounter, 2 ) )[0];
+                                } else {
+                                    echo '--';
+                                }
+                            ?>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -425,6 +467,30 @@ class WorkshopSurveyViews
         <?php   
 
 
+    }
+
+    private function gradeSurveySatPerctages( $valueToGrade = NULL ){
+        if( !empty( $valueToGrade ) ){
+            if(($valueToGrade) >= 98){
+                $gradeTxt = " Exceptional ";
+                $passing  = TRUE;
+            } elseif (($valueToGrade) >= 95){
+                $gradeTxt = " Exceeds ";
+                $passing  = TRUE;
+            } elseif (($valueToGrade) >= 89){
+                $gradeTxt = " Meets ";
+                $passing  = TRUE;
+            } elseif ($valueToGrade != 0) {
+                $gradeTxt = "Does Not Meet";
+                $passing  = FALSE;
+            } else {
+                $gradeTxt = " -- ";
+                $passing  = TRUE;
+            }
+            return array( $gradeTxt, $passing );
+        } else {
+            return array( "--", TRUE );
+        }
     }
 
     public function suvery_sat_grading($total_percentage) {
