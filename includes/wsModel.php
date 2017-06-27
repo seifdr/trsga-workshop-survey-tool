@@ -185,9 +185,11 @@ class WorkshopSurvey extends DatabaseObject
 
         date_default_timezone_set('America/Chicago');
 
-        $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, ws.removed, u.FirstName, u.LastName, u.surveyID 
+        $sqla = " SELECT ws.id, ws.question1a, ws.question1b, ws.question1c, ws.question1d, ws.fiscal_qtr, ws.fiscal_yr, ws.survey_yr, ws.DLC, ws.rep_code, ws.removed, u.first_name, u.last_name, u.surveyID 
                     FROM workshopSurvey17 AS ws LEFT OUTER JOIN users AS u ON ws.rep_code = u.surveyID 
-                        WHERE ws.removed != '1' ";
+                        WHERE ws.removed != '1' 
+                        AND u.user_type = 'outreach'
+                        AND u.clearance != 'Master' ";
 
                         if( !empty( $this->counselorCode ) ){
                             $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
@@ -220,14 +222,16 @@ class WorkshopSurvey extends DatabaseObject
                     IF( workshopSurvey17.DLC IS NULL, CONCAT( DATE_FORMAT( CURRENT_DATE(), '%m' ), DATE_FORMAT( CURRENT_DATE(), '%d' ) , 'XXXX' ), workshopSurvey17.DLC ) AS DLC, 
                     IF( workshopSurvey17.rep_code IS NULL, users.surveyID, workshopSurvey17.rep_code ) AS rep_code, 
                     workshopSurvey17.removed,
-                    users.FirstName, 
-                    users.LastName, 
+                    users.first_name, 
+                    users.last_name, 
                     users.surveyID 
                         FROM workshopSurvey17 RIGHT OUTER JOIN users ON workshopSurvey17.rep_code = users.surveyID 
                             WHERE ( workshopSurvey17.fiscal_yr = '". $this->fy ."' 
                                 OR workshopSurvey17.fiscal_yr IS NULL ) 
                                     AND ( workshopSurvey17.removed != 1 || workshopSurvey17.removed IS NULL ) 
-                                    AND users.active = 1";
+                                    AND users.active = 1
+                                    AND users.user_type = 'outreach'
+                                    AND users.clearance != 'Master' ";
 
                                      if( !empty( $this->counselorCode ) ){
                                         $sqlb .= " AND workshopSurvey17.rep_code = '". $this->counselorCode ."' ";
@@ -241,26 +245,26 @@ class WorkshopSurvey extends DatabaseObject
 
             $sqle  = " SELECT *, IF( ( ( t2.question1a <= 3 AND t2.question1a != 0 ) AND ( t2.question1b <= 3 AND t2.question1b != 0 ) AND ( t2.question1c <= 3 AND t2.question1c != 0 ) ), '1', '0' ) AS fail FROM (". $sqld .") as t2 ";
             
-            $sqlLayer2  = "SELECT t.FirstName, t.LastName, t.surveyID, 
+            $sqlLayer2  = "SELECT t.first_name, t.last_name, t.surveyID, 
                 COUNT( IF( ( t.fiscal_qtr = '1' AND t.fail = '1' ), 1, NULL) ) as Qtr1, 
                 COUNT( IF( ( t.fiscal_qtr = '2' AND t.fail = '1' ), 1, NULL) ) as Qtr2, 
                 COUNT( IF( ( t.fiscal_qtr = '3' AND t.fail = '1' ), 1, NULL) ) as Qtr3, 
                 COUNT( IF( ( t.fiscal_qtr = '4' AND t.fail = '1' ), 1, NULL) ) as Qtr4, 
-                SUM( Fail ) as Total FROM (". $sqle .") AS t GROUP BY t.FirstName, t.LastName, t.surveyID";
+                SUM( Fail ) as Total FROM (". $sqle .") AS t GROUP BY t.first_name, t.last_name, t.surveyID";
     
         } elseif ( $type == 'count45s' ){
 
-            $sqlLayer2    = "SELECT t.FirstName, t.LastName, t.surveyID, COUNT( IF( ( t.question1a = '4' AND t.question1b = '4' AND t.question1c = '4' )  , 1, NULL) ) as All_4s, COUNT( IF( ( t.question1a = '5' AND t.question1b = '5' AND t.question1c = '5' ), 1, NULL) ) as All_5s, COUNT( IF( ( t.question1a >= '4' AND t.question1b >= '4' AND t.question1c >= '4' ), 1, NULL) ) as All_4s_5s FROM (". $sqld .") AS t GROUP BY t.FirstName, t.LastName, t.surveyID";
+            $sqlLayer2    = "SELECT t.first_name, t.last_name, t.surveyID, COUNT( IF( ( t.question1a = '4' AND t.question1b = '4' AND t.question1c = '4' )  , 1, NULL) ) as All_4s, COUNT( IF( ( t.question1a = '5' AND t.question1b = '5' AND t.question1c = '5' ), 1, NULL) ) as All_5s, COUNT( IF( ( t.question1a >= '4' AND t.question1b >= '4' AND t.question1c >= '4' ), 1, NULL) ) as All_4s_5s FROM (". $sqld .") AS t GROUP BY t.first_name, t.last_name, t.surveyID";
         
         } elseif ( $type == 'fyavgs' ){
 
-            $sqlLayer2 = "SELECT FirstName, LastName, ROUND( AVG( question1a ), 2 ) AS q1a_avg, ROUND( AVG( question1b ), 2 ) AS q1b_avg, ROUND( AVG( question1c ), 2 ) q1c_avg, ROUND( AVG( ( question1a + question1b + question1c ) / 3 ), 2 ) AS total_avg FROM ( ". $sqld ." ) as t2 GROUP BY FirstName, LastName, rep_code";
+            $sqlLayer2 = "SELECT first_name, last_name, ROUND( AVG( question1a ), 2 ) AS q1a_avg, ROUND( AVG( question1b ), 2 ) AS q1b_avg, ROUND( AVG( question1c ), 2 ) q1c_avg, ROUND( AVG( ( question1a + question1b + question1c ) / 3 ), 2 ) AS total_avg FROM ( ". $sqld ." ) as t2 GROUP BY first_name, last_name, rep_code";
 
         } elseif ( $type == 'satPers' ) {
 
             $x = " SELECT 
-                    t2.FirstName,
-                    t2.LastName,
+                    t2.first_name,
+                    t2.last_name,
                     SUM( IF( ( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ) AND t2.fiscal_qtr = 1 ), 1, 0 ) ) AS Qtr1_pass_cnt,
                     SUM( IF( t2.fiscal_qtr = 1, 1, 0 ) ) as Qtr1_tot_cnt,
                     
@@ -276,11 +280,11 @@ class WorkshopSurvey extends DatabaseObject
                     SUM( IF( ( t2.question1a > 3 AND t2.question1b > 3 AND t2.question1c > 3 ), 1, 0 ) ) AS Tot_pass_cnt,
                     SUM( IF( t2.fiscal_qtr IS NOT NULL, 1, 0 ) ) as Tot_cnt  
                     
-                    FROM ( ". $sqld ." ) as t2 GROUP BY t2.firstName, t2.LastName, t2.surveyId";
+                    FROM ( ". $sqld ." ) as t2 GROUP BY t2.first_name, t2.last_name, t2.surveyId";
 
            $y = " SELECT 
-                    FirstName,
-                    LastName,
+                    first_name,
+                    last_name,
                     ROUND( ( ( t3.Qtr1_pass_cnt / t3.Qtr1_tot_cnt ) * 100 ), 2 ) AS Qtr1_Perc,
 
                     ROUND( ( ( t3.Qtr2_pass_cnt / t3.Qtr2_tot_cnt ) * 100 ), 2 ) AS Qtr2_Perc,
@@ -298,7 +302,7 @@ class WorkshopSurvey extends DatabaseObject
         } else {
             //catch all
             //$sqlLayer2    = "SELECT t.id, t.FirstName, t.LastName, t.fiscal_qtr, t.surveyID, COUNT( IF( t.fiscal_qtr = '1', 1, NULL) ) as Qtr1, COUNT( IF( t.fiscal_qtr = '2', 1, NULL) ) as Qtr2, COUNT( IF( t.fiscal_qtr = '3', 1, NULL) ) as Qtr3, COUNT( IF( t.fiscal_qtr = '4', 1, NULL) ) as Qtr4, COUNT( IF( ( t.fiscal_qtr = '1' OR t.fiscal_qtr = '2' OR t.fiscal_qtr = '3' OR t.fiscal_qtr = '4' ), 1, NULL ) ) as Total FROM (". $sqld .") AS t GROUP BY t.surveyID";
-            $sqlLayer2    = "SELECT t.FirstName, t.LastName, t.surveyID, COUNT( IF( t.fiscal_qtr = '1', 1, NULL) ) as Qtr1, COUNT( IF( t.fiscal_qtr = '2', 1, NULL) ) as Qtr2, COUNT( IF( t.fiscal_qtr = '3', 1, NULL) ) as Qtr3, COUNT( IF( t.fiscal_qtr = '4', 1, NULL) ) as Qtr4, COUNT( IF( ( t.fiscal_qtr = '1' OR t.fiscal_qtr = '2' OR t.fiscal_qtr = '3' OR t.fiscal_qtr = '4' ), 1, NULL ) ) as Total FROM (". $sqld .") AS t GROUP BY  t.FirstName, t.LastName, t.surveyID";
+            $sqlLayer2    = "SELECT t.first_name, t.last_name, t.surveyID, COUNT( IF( t.fiscal_qtr = '1', 1, NULL) ) as Qtr1, COUNT( IF( t.fiscal_qtr = '2', 1, NULL) ) as Qtr2, COUNT( IF( t.fiscal_qtr = '3', 1, NULL) ) as Qtr3, COUNT( IF( t.fiscal_qtr = '4', 1, NULL) ) as Qtr4, COUNT( IF( ( t.fiscal_qtr = '1' OR t.fiscal_qtr = '2' OR t.fiscal_qtr = '3' OR t.fiscal_qtr = '4' ), 1, NULL ) ) as Total FROM (". $sqld .") AS t GROUP BY  t.first_name, t.last_name, t.surveyID";
         }
 
         $result = array(); 

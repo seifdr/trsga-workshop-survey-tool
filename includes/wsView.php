@@ -172,7 +172,7 @@ class WorkshopSurveyViews
                                 <tr <?php if( $database->escape_values( $row['Total'] ) == 0 ){
                                     echo ' class="zero" ';
                                 } ?> >
-                                    <td><?php echo $database->escape_values( $row['FirstName'] ." ". $row['LastName'] ); ?></td>
+                                    <td><?php echo $database->escape_values( $row['first_name'] ." ". $row['last_name'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['Qtr1'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['Qtr2'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['Qtr3'] ); ?></td>
@@ -234,7 +234,7 @@ class WorkshopSurveyViews
                                 $zeros = ( ( $row['All_4s'] == 0 ) && ( $row['All_5s'] == 0 ) && ( $row['All_4s_5s'] == 0 ) )? TRUE : FALSE;
                             ?>
                                 <tr <?php if( $zeros ){ echo ' class="zero" '; } ?> >
-                                    <td><?php echo $database->escape_values( $row['FirstName'] ." ". $row['LastName'] ); ?></td>
+                                    <td><?php echo $database->escape_values( $row['first_name'] ." ". $row['last_name'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['All_4s'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['All_5s'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['All_4s_5s'] ); ?></td>
@@ -294,7 +294,7 @@ class WorkshopSurveyViews
                             
                             ?>
                                 <tr <?php if( $zeros ){ echo ' class="zero" '; } ?> >
-                                    <td><?php echo $database->escape_values( $row['FirstName'] ." ". $row['LastName'] ); ?></td>
+                                    <td><?php echo $database->escape_values( $row['first_name'] ." ". $row['last_name'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['q1a_avg'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['q1b_avg'] ); ?></td>
                                     <td><?php echo $database->escape_values( $row['q1c_avg'] ); ?></td>
@@ -375,7 +375,7 @@ class WorkshopSurveyViews
                             
                             $zeros = ( is_null( $row['Tot_Perc'] ) )? TRUE : FALSE;
                             
-                                $td1     = $database->escape_values( $row['FirstName'] ." ". $row['LastName'] );
+                                $td1     = $database->escape_values( $row['first_name'] ." ". $row['last_name'] );
                                 $td2     = $database->escape_values( $row['Qtr1_Perc'] );
                                 $td3     = $database->escape_values( $row['Qtr2_Perc'] );
                                 $td4     = $database->escape_values( $row['Qtr3_Perc'] );

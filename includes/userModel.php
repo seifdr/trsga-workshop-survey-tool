@@ -7,11 +7,11 @@ class User extends DatabaseObject
 {
 
     protected static $table_name = "users";	
-	protected static $db_fields  = array('id','FirstName', 'LastName', "surveyID", "clearance", "user_type", "active");
+	protected static $db_fields  = array('id','first_name', 'last_name', "surveyID", "clearance", "user_type", "active");
 	
     public $id;
-    public $FirstName;
-    public $LastName;
+    public $first_name;
+    public $last_name;
     public $clearance;
 	public $user_type;
 	public $surveyID;
