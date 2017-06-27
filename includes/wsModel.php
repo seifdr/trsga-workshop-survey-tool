@@ -7,7 +7,7 @@ class WorkshopSurvey extends DatabaseObject
 {
 
     protected static $table_name = "workshopSurvey17";	
-	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'type', 'removed', 'FirstName', 'LastName');
+	protected static $db_fields  = array('id','respondentID', 'question1a', 'question1b', 'question1c', 'question1d', 'question2', 'question3a', 'question3b', 'question3c', 'question3d', 'question4', 'question5', 'question6', 'DLC', 'rep_code', 'survey_month', 'survey_month_num', 'survey_yr', 'fiscal_qtr', 'fiscal_yr', 'name', 'location', 'type', 'removed', 'first_name', 'last_name');
 	public static $month_array = array(1 => "January", 2 => "February", 3 => "March", 4 => "April", 5 => "May", 6 => "June", 7 => "July", 8 => "August", 9 => "September", 10 => "October", 11 => "November", 12 => "December"); 
 
     public $id;
@@ -38,8 +38,8 @@ class WorkshopSurvey extends DatabaseObject
 
     //counselor info
     public $rep_code;
-    public $FirstName;
-    public $LastName;
+    public $first_name;
+    public $last_name;
 
     //for code
     public $params;
@@ -478,7 +478,7 @@ class WorkshopSurvey extends DatabaseObject
                         count(*) as test
                     FROM ". static::$table_name . " as WS ";
 
-        $sql = $this->addWhereCatsToSql( $sql );
+        $sql = $this->addWhereCatsToSql( $sql, FALSE );
 
         $result = array(); 
 
@@ -489,45 +489,52 @@ class WorkshopSurvey extends DatabaseObject
         return $result;
     }
 
-    private function addWhereCatsToSql( $sql ){
+    private function addWhereCatsToSql( $sql, $pre = TRUE ){
         //table previous must be aliased as ws
          $whereCnt = 0;
 
-        $sql .= " WHERE ws.removed != '1' "; 
+		if( $pre ){
+			$pre = 'ws.';
+		} else {
+			$pre = '';
+		}
+
+        $sql .= " WHERE {$pre}removed != '1' "; 
         $whereCnt = 1;
 
         if( !empty( $this->counselorCode ) ){
             $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-            $sql .= " ws.rep_code = '". $this->counselorCode ."' ";
+            $sql .= " {$pre}rep_code = '". $this->counselorCode ."' ";
             $whereCnt++;
         }
 
         if( !empty( $this->monthNumber ) ){
             $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-            $sql .= " ws.survey_month_num = '". $this->monthNumber ."' ";
+            $sql .= " {$pre}survey_month_num = '". $this->monthNumber ."' ";
             $whereCnt++;
         }
 
         if( !empty( $this->year ) ){
             $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-            $sql .= " ws.survey_yr = '". $this->year ."' ";
+            $sql .= " {$pre}survey_yr = '". $this->year ."' ";
             $whereCnt++;
         }
 
         if( !empty( $this->fy ) ){
             $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-            $sql .= " ws.fiscal_yr = '". $this->fy ."' ";
+            $sql .= " {$pre}fiscal_yr = '". $this->fy ."' ";
             $whereCnt++;
         }
         
         if( !empty( $this->fq ) ){
             $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-            $sql .= " ws.fiscal_qtr = '". $this->fq ."' ";
+            $sql .= " {$pre}fiscal_qtr = '". $this->fq ."' ";
             $whereCnt++;
         }
 
         return $sql;
     }
+
 
     
     // SURVEY REPORT FUNCTIONS
@@ -728,7 +735,7 @@ class WorkshopSurvey extends DatabaseObject
             $sqla .= "  ws.id, 
                         CONCAT( SUBSTRING( ws.DLC, 1, 2 ), '/', SUBSTRING( ws.DLC, 3, 2), '/', SUBSTRING( ws.survey_yr, 3, 2 ) ) AS Date,
                         ws.location,
-                        CONCAT( u.FirstName, ' ', u.LastName ) AS Counselor, 
+                        CONCAT( u.first_name, ' ', u.last_name ) AS Counselor, 
                         ws.question1a AS Knowledgable, 
                         ws.question1b AS Effective, 
                         ws.question1c AS Organized, 
