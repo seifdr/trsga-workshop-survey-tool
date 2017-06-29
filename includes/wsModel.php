@@ -769,7 +769,7 @@ class WorkshopSurvey extends DatabaseObject
             $sqla .= "  , IF( ( ws.question1a <= 3 OR ws.question1b <= 3 OR ws.question1c <= 3 ) , 1, 0) AS Failed ";
         }
 
-        $sqla .= "  FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID WHERE removed != 1 ";
+        $sqla .= "  FROM workshopSurvey17 AS ws JOIN users AS u ON ws.rep_code = u.surveyID WHERE removed != 1 AND u.user_type = 'outreach' ";
 
                         if( $singleSurvey ){
                             $sqla .= " AND ws.id='". $this->id ."' ";
