@@ -669,7 +669,7 @@ class WorkshopSurveyViews
 
             $counselors = $this->userModel->find_by_sql(
                 // 'SELECT * FROM users WHERE active = 1'
-                'SELECT * FROM users ORDER BY active DESC , LastName ASC'
+                'SELECT * FROM users WHERE user_type = "outreach" ORDER BY active DESC , Last_Name ASC'
             );
 
             $months = array( 
@@ -720,11 +720,11 @@ class WorkshopSurveyViews
                     $activeInactiveBreakPoint = FALSE;
 
                     foreach ($counselors as $counselor ) {
-                        $fullname = $counselor->FirstName . " " . $counselor->LastName;
+                        $fullname = $counselor->first_name . " " . $counselor->last_name;
 
                         if( $counselor->active == 0 && $activeInactiveBreakPoint == FALSE ){
                             echo "<optgroup label='Inactive'>";
-                            $activeInactiveBreakPoint == TRUE;
+                            $activeInactiveBreakPoint = TRUE;
                         }
                         echo  "<option ";
 
