@@ -226,12 +226,15 @@ $(document).ready( function(){
     // Pie chart on ws dashboard
     google.charts.load('current', {packages: ['corechart', 'bar', 'line']});
     google.charts.setOnLoadCallback(drawBarChart);
-    google.charts.setOnLoadCallback(drawLineChart);
+    //removed line chart per mike's request - DS 062817
+    //google.charts.setOnLoadCallback(drawLineChart);
     google.charts.setOnLoadCallback(drawPieChart);
     
     function drawBarChart() {
 
         var workshopSurveyTypeChartData = $('div#barChart').data('chart');
+
+        console.log( workshopSurveyTypeChartData );
         
         var data = google.visualization.arrayToDataTable( workshopSurveyTypeChartData );
 
@@ -255,33 +258,34 @@ $(document).ready( function(){
       chart.draw(data, options);
     }
 
-    function drawLineChart() {
+    //removed line chart per mike's request - DS 062817
+    // function drawLineChart() {
 
-        var workshopSatPercentageChartData = $('div#lineChart').data('chart');
+    //     var workshopSatPercentageChartData = $('div#lineChart').data('chart');
         
-        var data = google.visualization.arrayToDataTable( workshopSatPercentageChartData );
+    //     var data = google.visualization.arrayToDataTable( workshopSatPercentageChartData );
 
-        var options = {
-          width: '100%',
-          height: 400,
-          chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
-          //title: 'Workshop Survey Satisfaction Trending Graph (last six months)',
-          //curveType: 'function',
-          legend: { position: 'bottom' },
-          vAxis: {
-            maxValue: 100,
-            viewWindowMode:'explicit',
-            viewWindow: {
-              max:100,
-              min:0
-            }
-          }
-        };
+    //     var options = {
+    //       width: '100%',
+    //       height: 400,
+    //       chartArea:{left: '5%', top: 20,width:'90%',height:'80%'},
+    //       //title: 'Workshop Survey Satisfaction Trending Graph (last six months)',
+    //       //curveType: 'function',
+    //       legend: { position: 'bottom' },
+    //       vAxis: {
+    //         maxValue: 100,
+    //         viewWindowMode:'explicit',
+    //         viewWindow: {
+    //           max:100,
+    //           min:0
+    //         }
+    //       }
+    //     };
 
-        var chart = new google.visualization.LineChart(document.getElementById('lineChart'));
+    //     var chart = new google.visualization.LineChart(document.getElementById('lineChart'));
 
-        chart.draw(data, options);
-    }
+    //     chart.draw(data, options);
+    // }
 
     function drawPieChart() {
 

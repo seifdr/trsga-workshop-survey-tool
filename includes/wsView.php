@@ -512,6 +512,7 @@ class WorkshopSurveyViews
 	}	
 
     public function past_six_mon_sat_percentages(){
+
         $result = $this->wsModel->get_past_six_mon_sat_percentages();
 
         $chartArr = array();
@@ -648,11 +649,13 @@ class WorkshopSurveyViews
         </div> 
         <div class="col-12 col-sm-12 col-md-6">
             <?php 
+            
                 $chartObj = json_encode( [
                     ['Reponse', 'Count'],
                     ['Yes', (int) $result[0]['Yes']],
                     ['No', (int) $result[0]['No']]
                 ] );
+
             ?>
             <div id="piechart" style="width: 550px; height: 350px;" data-chart='<?php echo $chartObj; ?>'></div>
         </div>
