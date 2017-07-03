@@ -135,6 +135,8 @@ class WorkshopSurvey extends DatabaseObject
              COUNT( IF( ( ws.type = '3' ), 1, NULL) ) as 'New Hire Workshop'
              FROM ". static::$table_name ." AS ws ";
 
+        $sql = $this->addWhereCatsToSql( $sql );
+
         $result = array(); 
 
         foreach ( $database->query( $sql ) as $row ) {
