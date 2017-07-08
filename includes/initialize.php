@@ -13,5 +13,44 @@
     require( 'wsView.php' );
     require( 'wsController.php' );
     
+    $login_user = array(
+        (object)array(
+            "id" => 1,
+            "username" => "dseif",
+            "password" => "",
+            "hashed_password" => "", 
+            "first_name" => "Duncan",
+            "last_name" => "Seif",
+            "clearance" => "Master",
+            "user_type" => "outreach",
+            "surveyID" => "",
+            "active" => "1"
+        ),
+        (object)array(
+            "id" => 2,
+            "username" => "bbrewer",
+            "password" => "",
+            "hashed_password" => "", 
+            "first_name" => "Britt",
+            "last_name" => "Brewer",
+            "clearance" => "Outreach Staff",
+            "user_type" => "outreach",
+            "surveyID" => "A",
+            "active" => "1"
+        ),
+        (object)array(
+            "id" => 1,
+            "username" => "aswisher",
+            "password" => "",
+            "hashed_password" => "", 
+            "first_name" => "Angela",
+            "last_name" => "Swisher",
+            "clearance" => "Outreach Staff",
+            "user_type" => "outreach",
+            "surveyID" => "",
+            "active" => "0"
+        )
+    );
+
      
 ?>
