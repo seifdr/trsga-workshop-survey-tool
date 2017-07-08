@@ -1223,41 +1223,40 @@ class WorkshopSurveyViews
                                     if( ( isset( $_POST['action'] ) && !empty( $_POST['action'] ) ) && ( isset( $_POST['sid'] ) && !empty( $_POST['sid'] ) ) ){
 
                                         if( $_POST['action'] == 'prepareDelete'){
+                                    
+                                                                 $result = $this->wsModel->survey_report( FALSE, TRUE );
 
-                                            $result = $this->wsModel->survey_report( false, TRUE );
-                                            
-                                            if( empty( $result[0] ) ){
-                                                $this->alert('<strong>No survey found.</strong> Please try again.');
-                                            }
-                                                ?>
-                                                <table class='table table-striped' id="reportbody">
-                                                    <tbody>
-                                                        <tr>
-                                                            <th>Suvery ID</th>
-                                                            <th>Event Date</th>
-                                                            <th>Location</th>
-                                                            <th>Counselor</th>
-                                                            <th>Knowledgable</th>
-                                                            <th>Effective</th>
-                                                            <th>Organized</th>
-                                                            <th>Overall</th>
-                                                            <th></th>
-                                                        </tr>
-                                                    <?php echo $this->output_survey_row( $result[0] ); ?>
-                                                    </tbody>
-                                                </table>
-                                                <div class="row justify-content-center" >
-                                                    <div class="col-4">
-                                                        <form class="form-inline row" method="post" action="remove.php">
-                                                            <input type="hidden" name="action" value="completeDelete" />
-                                                            <input type="hidden" name="sid" value="<?php echo $_POST['sid']; ?>" />
-                                                            <button id="surveyDelete" type="submit" class="btn btn-primary col m-2">Delete Survey #<?php echo $this->wsModel->id; ?></button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                                
-
-                                                <?php
+                                                                if( !isset( $result[0] ) || empty( $result[0] ) || $result[0] == '' ){
+                                                                    echo $this->alert('<strong>No survey found.</strong> Please try again.');
+                                                                } else {
+                                                                ?>
+                                                                    <table class='table table-striped' id="reportbody">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <th>Suvery ID</th>
+                                                                                <th>Event Date</th>
+                                                                                <th>Location</th>
+                                                                                <th>Counselor</th>
+                                                                                <th>Knowledgable</th>
+                                                                                <th>Effective</th>
+                                                                                <th>Organized</th>
+                                                                                <th>Overall</th>
+                                                                                <th></th>
+                                                                            </tr>
+                                                                        <?php echo $this->output_survey_row( $result[0] ); ?>
+                                                                        </tbody>
+                                                                    </table>
+                                                                    <div class="row justify-content-center" >
+                                                                        <div class="col-4">
+                                                                            <form class="form-inline row" method="post" action="remove.php">
+                                                                                <input type="hidden" name="action" value="completeDelete" />
+                                                                                <input type="hidden" name="sid" value="<?php echo $_POST['sid']; ?>" />
+                                                                                <button id="surveyDelete" type="submit" class="btn btn-primary col m-2">Delete Survey #<?php echo $this->wsModel->id; ?></button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                    <?php
+                                                                }
                                         } elseif ( $_POST['action'] == 'completeDelete' ){
                                             if( $this->wsModel->deleteSurvey() ){
                                                echo $this->success('<strong>Success!</strong> Suvery #' . $this->wsModel->id . " was successfully deleted.");
