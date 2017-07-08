@@ -1234,20 +1234,15 @@ class WorkshopSurveyViews
                                 <?php
                                     if( ( isset( $_POST['action'] ) && !empty( $_POST['action'] ) ) && ( isset( $_POST['sid'] ) && !empty( $_POST['sid'] ) ) ){
 
-                                         if( !isset( $result[0] ) || empty( $result[0] ) || $result[0] == '' ){
-                                            echo $this->alert('<strong>No survey found.</strong> Please try again.');
-                                            $this->deleteSurveyForm();
-                                            $foundSurvey = FALSE;
-                                        } else {
-                                            $foundSurvey = TRUE;
-                                        }
+                                         
 
-                                        if( $_POST['action'] == 'prepareDelete' && $foundSurvey ){
-                                    
+                                        if( $_POST['action'] == 'prepareDelete' ){
+                                                               
                                                                 $result = $this->wsModel->survey_report( FALSE, TRUE );
 
                                                                 if( !isset( $result[0] ) || empty( $result[0] ) || $result[0] == '' ){
                                                                     echo $this->alert('<strong>No survey found.</strong> Please try again.');
+                                                                    $this->deleteSurveyForm();
                                                                 } else {
                                                                 ?>
                                                                     <table class='table table-striped' id="reportbody">

@@ -777,52 +777,54 @@ class WorkshopSurvey extends DatabaseObject
                             $sqla .= " AND ws.id='". $this->id ."' ";
                         }
 
-                        if( !empty( $this->counselorCode ) ){
-                            $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
-                        }
+                        if( !$singleSurvey ){
+                            if( !empty( $this->counselorCode ) ){
+                                $sqla .= " AND ws.rep_code = '". $this->counselorCode ."' ";
+                            }
 
-                        if( !empty( $this->monthNumber ) ){
-                            $sqla .= " AND ws.survey_month_num = '". $this->monthNumber ."' ";
-                        }
+                            if( !empty( $this->monthNumber ) ){
+                                $sqla .= " AND ws.survey_month_num = '". $this->monthNumber ."' ";
+                            }
 
-                        if( !empty( $this->year ) ){
-                            $sqla .= " AND ws.survey_yr = '". $this->year ."' ";
-                        }
+                            if( !empty( $this->year ) ){
+                                $sqla .= " AND ws.survey_yr = '". $this->year ."' ";
+                            }
 
-                        if( !empty( $this->fy ) && ( $singleSurvey == FALSE ) ){
-                            $sqla .= " AND ws.fiscal_yr = '". $this->fy ."' ";
-                        }
-                        
-                        if( !empty( $this->fq ) ){
-                            $sqla .= " AND ws.fiscal_qtr = '". $this->fq ."' ";
-                        }
-
-                        //ORDER BY DATE 
-                        if( !$avgs ){
-                            $sqla .= " ORDER BY Date DESC ";
-                        }
-
-                        if( !empty( $this->offset ) && ($this->offset != "all") && !$avgs && !$csv ) {
-
-                            //Pagination 
-                            //1. the current page number ($current_page)
-                            $page = !empty( $this->block ) ? (int)$this->block : 1;
+                            if( !empty( $this->fy ) && ( $singleSurvey == FALSE ) ){
+                                $sqla .= " AND ws.fiscal_yr = '". $this->fy ."' ";
+                            }
                             
-                            //2. record per page ($per_page)
-                            $per_page = $this->offset;
+                            if( !empty( $this->fq ) ){
+                                $sqla .= " AND ws.fiscal_qtr = '". $this->fq ."' ";
+                            }
+                    
+                            //ORDER BY DATE 
+                            if( !$avgs ){
+                                $sqla .= " ORDER BY Date DESC ";
+                            }
+                           
+                            if( !empty( $this->offset ) && ($this->offset != "all") && !$avgs && !$csv ) {
 
-                            //3. total record count ($total_count)
-                            // $total_count = outreachSurveys::count_all();
-                            $countSQL = "SELECT count(*) as total_count FROM (". $sqla .") AS t";
+                                //Pagination 
+                                //1. the current page number ($current_page)
+                                $page = !empty( $this->block ) ? (int)$this->block : 1;
+                                
+                                //2. record per page ($per_page)
+                                $per_page = $this->offset;
 
-                            $total_count = mysqli_fetch_object( $database->query( $countSQL ) )->total_count;
+                                //3. total record count ($total_count)
+                                // $total_count = outreachSurveys::count_all();
+                                $countSQL = "SELECT count(*) as total_count FROM (". $sqla .") AS t";
 
-                            $this->paginationObj = new WsPagination($page, $per_page, $total_count, $this);
-                        }
-    
-                        if( !empty( $this->offset ) && $this->offset != "all" && !$avgs && !$csv ){
-                            //Add Pagination SQL
-                            $sqla .= " LIMIT {$this->paginationObj->per_page} OFFSET {$this->paginationObj->offset()}";
+                                $total_count = mysqli_fetch_object( $database->query( $countSQL ) )->total_count;
+
+                                $this->paginationObj = new WsPagination($page, $per_page, $total_count, $this);
+                            }
+        
+                            if( !empty( $this->offset ) && $this->offset != "all" && !$avgs && !$csv ){
+                                //Add Pagination SQL
+                                $sqla .= " LIMIT {$this->paginationObj->per_page} OFFSET {$this->paginationObj->offset()}";
+                            }
                         }
               
         $result = array(); 
