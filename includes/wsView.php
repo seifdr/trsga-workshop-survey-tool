@@ -1211,6 +1211,18 @@ class WorkshopSurveyViews
 
     }
 
+    private function deleteSurveyForm(){
+        ?>
+            <p>Type in a survey number below and click search. Survey number / ID must be a number.</p>
+            <form class="form-inline row" method="post" action="remove.php">
+                <label class="sr-only" for="inlineFormInput">Survey ID</label>
+                <input type="text" class="form-control col-9 ml-3" id="inlineFormInput" placeholder="Survey ID" name="sid" >
+                <input type="hidden" name="action" value="prepareDelete" />
+                <button type="submit" class="btn btn-primary col-2 ml-2">Submit</button>
+            </form>
+        <?php
+    }
+
     public function deleteSurvey(){
         ?>
 
@@ -1222,9 +1234,17 @@ class WorkshopSurveyViews
                                 <?php
                                     if( ( isset( $_POST['action'] ) && !empty( $_POST['action'] ) ) && ( isset( $_POST['sid'] ) && !empty( $_POST['sid'] ) ) ){
 
-                                        if( $_POST['action'] == 'prepareDelete'){
+                                         if( !isset( $result[0] ) || empty( $result[0] ) || $result[0] == '' ){
+                                            echo $this->alert('<strong>No survey found.</strong> Please try again.');
+                                            $this->deleteSurveyForm();
+                                            $foundSurvey = FALSE;
+                                        } else {
+                                            $foundSurvey = TRUE;
+                                        }
+
+                                        if( $_POST['action'] == 'prepareDelete' && $foundSurvey ){
                                     
-                                                                 $result = $this->wsModel->survey_report( FALSE, TRUE );
+                                                                $result = $this->wsModel->survey_report( FALSE, TRUE );
 
                                                                 if( !isset( $result[0] ) || empty( $result[0] ) || $result[0] == '' ){
                                                                     echo $this->alert('<strong>No survey found.</strong> Please try again.');
@@ -1266,16 +1286,8 @@ class WorkshopSurveyViews
                                             echo "<p><a href='../ws'>Return to the workshop survey dashboard.</a></p>";
                                         }
                                     } else {
-                                ?>
-                                            <p>Type in a survey number below and click search. Survey number / ID must be a number.</p>
-                                            <form class="form-inline row" method="post" action="remove.php">
-                                                <label class="sr-only" for="inlineFormInput">Survey ID</label>
-                                                <input type="text" class="form-control col-9 ml-3" id="inlineFormInput" placeholder="Survey ID" name="sid" >
-                                                <input type="hidden" name="action" value="prepareDelete" />
-                                                <button type="submit" class="btn btn-primary col-2 ml-2">Submit</button>
-                                            </form>
-                                    
-                            <?php } ?>
+                                        $this->deleteSurveyForm();
+                                } ?>
                       </div>
                     </div>
                 </div>
