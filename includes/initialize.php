@@ -28,9 +28,9 @@
             "hashed_password" => "", 
             "first_name" => "Britt",
             "last_name" => "Brewer",
-            "clearance" => "Outreach Manager",
+            "clearance" => "Outreach Staff",
             "user_type" => "outreach",
-            "surveyID" => "C",
+            "surveyID" => "A",
             "active" => "1"
         )
     );

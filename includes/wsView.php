@@ -1120,7 +1120,7 @@ class WorkshopSurveyViews
                                             </tr>
                                             <tr>
                                                 <th>TRS Presentor Name</th>
-                                                <td><?php echo htmlentities( $result['FirstName'] . " " . $result['LastName'] ); ?></td>
+                                                <td><?php echo htmlentities( $result['first_name'] . " " . $result['last_name'] ); ?></td>
                                             </tr>
                                             <tr>
                                                 <th>Workshop Type</th>
