@@ -685,7 +685,7 @@ class WorkshopSurvey extends DatabaseObject
 
                     if( !empty( $this->counselorCode ) ){
                         $sql .= ( $whereCnt > 0 )? " AND " : " WHERE ";
-                        $sql .= " WHERE ws.rep_code = '". $this->counselorCode ."' ";
+                        $sql .= " ws.rep_code = '". $this->counselorCode ."' ";
                         $whereCnt++;
                     }
 

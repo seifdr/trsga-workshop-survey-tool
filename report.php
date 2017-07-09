@@ -26,14 +26,14 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col">
-                    <h1>TRS Workshop Survey Report - FY <?php echo $wsView->current_fy; ?></h1>
+                    <h1>TRS Workshop Survey Report</h1>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
                     <?php 
 
-                        $wsView->report_dropdowns();
+                       $wsView->report_dropdowns();
 
                     ?>
                 </div>

@@ -30,9 +30,6 @@ class WorkshopSurveyViews
         '12' => 'December'
     );
 
-    //passed into the view
-    public $login_user; 
-
     function __construct( $wsController, $wsModel )
     {
 
@@ -715,31 +712,33 @@ class WorkshopSurveyViews
                     ?>
                 </select>
 
-                <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
-                    <option value="all" >All Counselors</option>
-                    <optgroup label="Active">
-                    <?php 
+                <?php if( $this->wsController->isManager ){ ?>
+                    <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="counselor" >
+                        <option value="all" >All Counselors</option>
+                        <optgroup label="Active">
+                        <?php 
 
-                    $activeInactiveBreakPoint = FALSE;
+                        $activeInactiveBreakPoint = FALSE;
 
-                    foreach ($counselors as $counselor ) {
-                        $fullname = $counselor->first_name . " " . $counselor->last_name;
+                        foreach ($counselors as $counselor ) {
+                            $fullname = $counselor->first_name . " " . $counselor->last_name;
 
-                        if( $counselor->active == 0 && $activeInactiveBreakPoint == FALSE ){
-                            echo "<optgroup label='Inactive'>";
-                            $activeInactiveBreakPoint = TRUE;
+                            if( $counselor->active == 0 && $activeInactiveBreakPoint == FALSE ){
+                                echo "<optgroup label='Inactive'>";
+                                $activeInactiveBreakPoint = TRUE;
+                            }
+                            echo  "<option ";
+
+                            if( !empty( $this->wsModel->counselorCode ) && ( $this->wsModel->counselorCode == $counselor->surveyID ) ){
+                                echo " selected ";
+                            }
+                            
+                            echo " value=\"{$counselor->surveyID}\">{$fullname}</option>";
                         }
-                        echo  "<option ";
 
-                        if( !empty( $this->wsModel->counselorCode ) && ( $this->wsModel->counselorCode == $counselor->surveyID ) ){
-                            echo " selected ";
-                        }
-                        
-                        echo " value=\"{$counselor->surveyID}\">{$fullname}</option>";
-                    }
-
-                    ?>
-                </select>
+                        ?>
+                    </select>
+                <?php } ?>
 
                 <select class="custom-select mb-2 mr-sm-1 mb-sm-0" id="inlineFormCustomSelect" name="month" >
                     <option value="all">All Months</option>
@@ -1056,15 +1055,15 @@ class WorkshopSurveyViews
         global $database;
 
         $p = $this->wsModel->params;
-        
+
         $text = "Returned all surveys collect for ";
 
         if( isset( $p['counselorCode'] ) && !empty( $p['counselorCode'] ) ){
             $userModel = new User;
             
-            $sql = "SELECT FirstName, LastName FROM users WHERE surveyID = \"". $database->escape_values( $p['counselorCode'] ) ."\"";
+            $sql = "SELECT first_name, last_name FROM users WHERE surveyID = \"". $database->escape_values( $p['counselorCode'] ) ."\"";
             $counselor = $userModel->find_by_sql( $sql );
-            $text .= $counselor[0]->FirstName . " " . $counselor[0]->LastName . " ";
+            $text .= $counselor[0]->first_name . " " . $counselor[0]->last_name . " ";
         } else {
             $text .= "all counselors ";
         }

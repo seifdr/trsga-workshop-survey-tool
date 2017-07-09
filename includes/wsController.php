@@ -8,8 +8,8 @@ class WorkshopSurveyController {
     public $urlAccessibleMethods = array( 'customReport', 'survey', 'prepareDelete', 'completeDelete', 'make_csv' );
 
     public $login_user;
-    private $isOutreachUser = FALSE;
-    private $isManager = FALSE;
+    public $isOutreachUser = FALSE;
+    public $isManager = FALSE;
 
     //first parameter is the workshopSurveyModel. This is mandatory
     //second parameter is an option page restriction, will only run a function if is allowed
@@ -42,9 +42,15 @@ class WorkshopSurveyController {
         look( $this->isOutreachUser );
         look( $this->isManager );
        
-        if( isset( $_GET['counselor'] ) && !empty( $_GET['counselor'] ) ){
-            if( ( $_GET['counselor'] ) != 'all' ){
-                $params['counselorCode'] = strtoupper( $_GET['counselor'] );
+        if( $this->isOutreachUser && $this->isManager ){
+            if( isset( $_GET['counselor'] ) && !empty( $_GET['counselor'] ) ){
+                if( ( $_GET['counselor'] ) != 'all' ){
+                    $params['counselorCode'] = strtoupper( $_GET['counselor'] );
+                }
+            }
+        } elseif ( $this->isOutreachUser && !$this->isManager ){
+            if( !empty( $this->login_user->surveyID ) ){
+                $params['counselorCode'] = strtoupper( $this->login_user->surveyID );
             }
         }
 
@@ -86,7 +92,7 @@ class WorkshopSurveyController {
             $params['block'] = $_GET['block'];
         }
 
-        //look( $params );
+        look( $params );
 
         $this->wsModel->sanitizeAndLoadParams( $params );
     }
