@@ -7,20 +7,41 @@ class WorkshopSurveyController {
 
     public $urlAccessibleMethods = array( 'customReport', 'survey', 'prepareDelete', 'completeDelete', 'make_csv' );
 
+    public $login_user;
+    private $isOutreachUser = FALSE;
+    private $isManager = FALSE;
+
     //first parameter is the workshopSurveyModel. This is mandatory
     //second parameter is an option page restriction, will only run a function if is allowed
-    function __construct( $wsModel ){
+    function __construct( $wsModel, $login_user=NULL ){
         $this->wsModel = $wsModel;
+
+        $this->login_user = $login_user[0];
+        $this->is_outreach_user();
+        $this->is_manager();
     }
 
     public function is_url_accessible( $name = NULL ){
         return ( in_array( $name, $this->urlAccessibleMethods ) )? TRUE : FALSE;
     }
 
+    private function is_outreach_user(){
+        $this->isOutreachUser = ( !empty( $this->login_user ) && $this->login_user->user_type == "outreach" )? TRUE : FALSE;
+    }
+
+    private function is_manager(){
+        $this->isManager = ( !empty( $this->login_user ) && ( $this->login_user->clearance == "Outreach Manger" || $this->login_user->clearance == "Master" )  )? TRUE : FALSE;
+    }
+
     public function customReport(){
         //used for both the report page, and the make csv page 
+
         $params = array();
 
+        look( $this->login_user );
+        look( $this->isOutreachUser );
+        look( $this->isManager );
+       
         if( isset( $_GET['counselor'] ) && !empty( $_GET['counselor'] ) ){
             if( ( $_GET['counselor'] ) != 'all' ){
                 $params['counselorCode'] = strtoupper( $_GET['counselor'] );

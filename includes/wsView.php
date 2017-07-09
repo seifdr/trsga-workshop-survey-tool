@@ -30,6 +30,9 @@ class WorkshopSurveyViews
         '12' => 'December'
     );
 
+    //passed into the view
+    public $login_user; 
+
     function __construct( $wsController, $wsModel )
     {
 
