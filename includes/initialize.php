@@ -20,12 +20,7 @@
         //     "password" => "",
         //     "hashed_password" => "", 
         //     "first_name" => "Duncan",
-        //     "last_name" => "Seif",
-        //     "clearance" => "Master",
-        //     "user_type" => "outreach",
-        //     "surveyID" => "",
-        //     "active" => "1"
-        // )
+   
         (object)array(
             "id" => 2,
             "username" => "bbrewer",
@@ -33,9 +28,9 @@
             "hashed_password" => "", 
             "first_name" => "Britt",
             "last_name" => "Brewer",
-            "clearance" => "Outreach Staff",
+            "clearance" => "Outreach Manager",
             "user_type" => "outreach",
-            "surveyID" => "A",
+            "surveyID" => "C",
             "active" => "1"
         )
     );

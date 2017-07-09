@@ -30,7 +30,19 @@ class WorkshopSurveyController {
     }
 
     private function is_manager(){
-        $this->isManager = ( !empty( $this->login_user ) && ( $this->login_user->clearance == "Outreach Manger" || $this->login_user->clearance == "Master" )  )? TRUE : FALSE;
+        $this->isManager = ( !empty( $this->login_user ) && ( $this->login_user->clearance == "Outreach Manager" || $this->login_user->clearance == "Master" )  )? TRUE : FALSE;
+    }
+
+    public function setDashboardParams(){
+         $params = array();
+
+        if ( $this->isOutreachUser && !$this->isManager ){
+            if( !empty( $this->login_user->surveyID ) ){
+                $params['counselorCode'] = strtoupper( $this->login_user->surveyID );
+            }
+        }
+
+        $this->wsModel->sanitizeAndLoadParams( $params );
     }
 
     public function customReport(){
