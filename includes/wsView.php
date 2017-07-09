@@ -1095,120 +1095,140 @@ class WorkshopSurveyViews
         return $text;
     }    
 
-    public function singleSurvey() {
+    public function singleSurvey( $login_user = NULL ) {
        global $database;
+
+       
 
        $result = $this->wsModel->get_single_survey();
 
        if( !empty( $this->wsModel ) && !empty( $result ) ){
-           ?>
-                
-           <div class="container">
-                <div class="row">
-                    <div class="col">
-                            <div class="row">
-                                <div class="col col-sm-8 col-md-7">
-                                    <table class='table indivSurvey'>
+
+            if( 
+                ( !empty( $result['surveyID'] ) && !empty( $login_user ) &&  $result['surveyID'] == $login_user->surveyID && $result['user_type'] == 'outreach' ) || 
+                ( $login_user->user_type == 'outreach' && ( $login_user->clearance == 'Outreach Manager' || $login_user->clearance == 'Master' ) )
+            ){
+            
+            ?>     
+            <div class="container">
+                    <div class="row">
+                        <div class="col">
+                                <div class="row">
+                                    <div class="col col-sm-8 col-md-7">
+                                        <table class='table indivSurvey'>
+                                            <tbody>
+                                                <tr>
+                                                    <th>Workshop Date</th>
+                                                    <td><?php echo htmlentities( $result['Date'] ); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Counseling Location</th>
+                                                    <td><?php echo htmlentities( $result['location'] ); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>TRS Presentor Name</th>
+                                                    <td><?php echo htmlentities( $result['first_name'] . " " . $result['last_name'] ); ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Workshop Type</th>
+                                                    <td><?php echo $this->wsModel->typesKey[ htmlentities( $result['type'] ) ] ; ?></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                        <p><strong>1.) Please indicate your impression of the statements listed below:</strong></p>
+                        <div class="row">
+                            <div class="col-12 col-md-10 col-lg-9">
+                                <table class='table indivSurvey'>
                                         <tbody>
                                             <tr>
-                                                <th>Workshop Date</th>
-                                                <td><?php echo htmlentities( $result['Date'] ); ?></td>
+                                                <td class="indent">The presenter was knowledgable</th>
+                                                <td><?php echo htmlentities( $result['question1a'] ); ?></td>
                                             </tr>
                                             <tr>
-                                                <th>Counseling Location</th>
-                                                <td><?php echo htmlentities( $result['location'] ); ?></td>
+                                                <td class="indent">The presenter has an effective presentation style</th>
+                                                <td><?php echo htmlentities( $result['question1b'] ); ?></td>
                                             </tr>
                                             <tr>
-                                                <th>TRS Presentor Name</th>
-                                                <td><?php echo htmlentities( $result['first_name'] . " " . $result['last_name'] ); ?></td>
+                                                <td class="indent">The workshop content was organized and easy to follow</th>
+                                                <td><?php echo htmlentities( $result['question1c'] ); ?></td>
                                             </tr>
                                             <tr>
-                                                <th>Workshop Type</th>
-                                                <td><?php echo $this->wsModel->typesKey[ htmlentities( $result['type'] ) ] ; ?></td>
+                                                <td class="indent">Please rate the workshop overall</th>
+                                                <td><?php echo htmlentities( $result['question1d'] ); ?></td>
                                             </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                    <p><strong>1.) Please indicate your impression of the statements listed below:</strong></p>
-                    <div class="row">
-                        <div class="col-12 col-md-10 col-lg-9">
-                            <table class='table indivSurvey'>
+                                    </tbody>
+                                </table>
+                            </div> <!-- close col -->
+                        </div> <!-- close row -->
+                        <p><strong>If any, which TRS events have you attended in the past?</strong></p>
+                        <p><?php echo $this->explodeEventsAttended( $result['question2'] ); ?></p>
+                        <p><strong>3.) After attending the Group Counseling event, has your understanding of the following topics increased or stayed the same?</strong></p>
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <table class='table indivSurvey'>
                                     <tbody>
                                         <tr>
-                                            <td class="indent">The presenter was knowledgable</th>
-                                            <td><?php echo htmlentities( $result['question1a'] ); ?></td>
+                                            <td class="indent">Eligibility Options</th>
+                                            <td><?php echo htmlentities( $result['question3a'] ); ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="indent">The presenter has an effective presentation style</th>
-                                            <td><?php echo htmlentities( $result['question1b'] ); ?></td>
+                                            <td class="indent">Plans of Retirement/Options</th>
+                                            <td><?php echo htmlentities( $result['question3b'] ); ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="indent">The workshop content was organized and easy to follow</th>
-                                            <td><?php echo htmlentities( $result['question1c'] ); ?></td>
+                                            <td class="indent">Beneficiary Information</th>
+                                            <td><?php echo htmlentities( $result['question3c'] ); ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="indent">Please rate the workshop overall</th>
-                                            <td><?php echo htmlentities( $result['question1d'] ); ?></td>
+                                            <td class="indent">Service Credit</th>
+                                            <td><?php echo htmlentities( $result['question3d'] ); ?></td>
                                         </tr>
-                                </tbody>
-                            </table>
-                        </div> <!-- close col -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <p><strong>The knowledge and skills I gained from this group counseling will be useful when applying for retirement.</strong></p>
+                        <p class="indent"><?php echo ( $result['question4'] )? "Yes" : "No"; ?></p>
+
+                        <p><strong>What other topics would you like us to cover in future workshops?</strong></p>
+                        <p class="indent"><?php 
+                            if( !empty( $result['question5'] ) ){
+                                echo htmlentities( $result['question5'] );
+                            } else {
+                                echo "No reponse given.";
+                            }
+                        ?></p>
+
+                        <p><strong>Please tell us what you found most valuble about this workhop?</strong></p>
+                        <p class="indent"><?php 
+                            if( !empty( $result['question6'] ) ){
+                                echo htmlentities( $result['question6'] );
+                            } else {
+                                echo "No reponse given.";
+                            }
+                        ?></p>
+
+                    </div> <!-- close col -->
                     </div> <!-- close row -->
-                    <p><strong>If any, which TRS events have you attended in the past?</strong></p>
-                    <p><?php echo $this->explodeEventsAttended( $result['question2'] ); ?></p>
-                    <p><strong>3.) After attending the Group Counseling event, has your understanding of the following topics increased or stayed the same?</strong></p>
+                </div>
+
+            <?php 
+            // close - if( !empty( $result['surveyID'] ) && !empty( $surveyID ) &&  $result['surveyID'] == $surveyID ){
+            } else {
+            ?>
+
+            <div class="container">
                     <div class="row">
-                        <div class="col-12 col-md-6">
-                            <table class='table indivSurvey'>
-                                <tbody>
-                                    <tr>
-                                        <td class="indent">Eligibility Options</th>
-                                        <td><?php echo htmlentities( $result['question3a'] ); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="indent">Plans of Retirement/Options</th>
-                                        <td><?php echo htmlentities( $result['question3b'] ); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="indent">Beneficiary Information</th>
-                                        <td><?php echo htmlentities( $result['question3c'] ); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="indent">Service Credit</th>
-                                        <td><?php echo htmlentities( $result['question3d'] ); ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="col">
+                            <?php echo $this->alert('<strong>Error# 00NA1</strong> You are not authorized to view this survey.'); ?>
                         </div>
                     </div>
-
-                    <p><strong>The knowledge and skills I gained from this group counseling will be useful when applying for retirement.</strong></p>
-                    <p class="indent"><?php echo ( $result['question4'] )? "Yes" : "No"; ?></p>
-
-                    <p><strong>What other topics would you like us to cover in future workshops?</strong></p>
-                    <p class="indent"><?php 
-                        if( !empty( $result['question5'] ) ){
-                             echo htmlentities( $result['question5'] );
-                        } else {
-                            echo "No reponse given.";
-                        }
-                    ?></p>
-
-                    <p><strong>Please tell us what you found most valuble about this workhop?</strong></p>
-                    <p class="indent"><?php 
-                        if( !empty( $result['question6'] ) ){
-                             echo htmlentities( $result['question6'] );
-                        } else {
-                            echo "No reponse given.";
-                        }
-                    ?></p>
-
-                </div> <!-- close col -->
-                </div> <!-- close row -->
             </div>
-
-           <?php 
+            <?php
+            }
        }
 
     }

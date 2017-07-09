@@ -23,7 +23,7 @@
     <body>
         <?php 
             if( $proceedWithQuery ){
-                $wsView->singleSurvey();
+                $wsView->singleSurvey( $login_user[0] );
             } else {
                 echo "<p>No survey was found. Please try again.</p>";
             }
