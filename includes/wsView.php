@@ -827,7 +827,8 @@ class WorkshopSurveyViews
             <p><strong><?php echo $this->sql_to_text(); ?></strong></p>
             <div class="row mb-4" >
                 <div class="col-6 col-sm-4 col-md-3" ><a href="#" id="showFails" >Show only fails</a></div>
-                <div class="col-6 col-sm-4 col-md-3" ><a href="make_csv.php?action=customReport">Download CSV</a></div>
+                <!--<div class="col-6 col-sm-4 col-md-3" ><a href="make_csv.php?action=customReport">Download CSV</a></div>-->
+                <div class="col-6 col-sm-4 col-md-3" ><a href="#" (onclick)="alert('Functionality still in dev. Try again later.')">Download CSV</a></div>
             </div>
         <?php 
 
