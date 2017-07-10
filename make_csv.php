@@ -9,7 +9,7 @@ header('Content-Disposition: attachment; filename=data.csv');
 include('includes/initialize.php');
 
 $wsModel = new WorkshopSurvey();
-$wsController = new WorkshopSurveyController( $wsModel, "make_csv" );
+$wsController = new WorkshopSurveyController( $wsModel, $login_user );
 $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
 
 if ( isset( $_GET['action'] ) && !empty( $_GET['action'] ) ) {

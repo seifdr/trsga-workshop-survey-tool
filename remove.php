@@ -18,7 +18,6 @@
 <html>
     <header>
         <link rel="stylesheet" type="text/css" href="css/main.css">
-        
     </header>
     <body>
         <div class="container">

@@ -3,7 +3,7 @@
     include('includes/initialize.php');
 
     $wsModel = new WorkshopSurvey();
-    $wsController = new WorkshopSurveyController( $wsModel );
+    $wsController = new WorkshopSurveyController( $wsModel, $login_user );
     $wsView = new WorkshopSurveyViews( $wsController, $wsModel );
 
     $proceedWithQuery = FALSE;

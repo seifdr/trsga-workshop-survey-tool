@@ -823,20 +823,18 @@ class WorkshopSurveyViews
     public function report_heading( ) {
         global $database;
         $result = $this->wsModel->get_survey_report_header_numbers();
-        ?>
-            <p><strong><?php echo $this->sql_to_text(); ?></strong></p>
-            <div class="row mb-4" >
-                <div class="col-6 col-sm-4 col-md-3" ><a href="#" id="showFails" >Show only fails</a></div>
-                <!--<div class="col-6 col-sm-4 col-md-3" ><a href="make_csv.php?action=customReport">Download CSV</a></div>-->
-                <div class="col-6 col-sm-4 col-md-3" ><a href="#" (onclick)="alert('Functionality still in dev. Try again later.')">Download CSV</a></div>
-            </div>
-        <?php 
 
         //if total count is 0 then there are no numbers to show
         if( $result['TotalCount'] > 0 ){
 
         ?>
-    
+            <p><strong><?php echo $this->sql_to_text(); ?></strong></p>
+            <div class="row mb-4" >
+                <div class="col-6 col-sm-4 col-md-3" ><a href="#" id="showFails" >Show only fails</a></div>
+                <div class="col-6 col-sm-4 col-md-3" ><a href="make_csv.php?action=customReport">Download CSV</a></div>
+                <!--<div class="col-6 col-sm-4 col-md-3" ><a href="#" (onclick)="alert('Functionality still in dev. Try again later.')">Download CSV</a></div>-->
+            </div>
+        
             <table class='table' id="reportheading">
                 <tbody>
                     <tr>
@@ -996,7 +994,7 @@ class WorkshopSurveyViews
         <?php
         // cloisng for count of $resultBody
         } else {
-            echo "<p>No results found</p>";
+            echo "<p class=\"mt-4\">No results found</p>";
         } 
     }
 
