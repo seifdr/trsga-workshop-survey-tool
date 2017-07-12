@@ -831,10 +831,9 @@ class WorkshopSurveyViews
             <p><strong><?php echo $this->sql_to_text(); ?></strong></p>
             <div class="row mb-4" >
                 <div class="col-6 col-sm-4 col-md-3" ><a href="#" id="showFails" >Show only fails</a></div>
-                <div class="col-6 col-sm-4 col-md-3" ><a href="make_csv.php?action=customReport">Download CSV</a></div>
+                <div class="col-6 col-sm-4 col-md-3" ><a href="<?php echo $this->createCSVLinkFromGets(); ?>">Download CSV</a></div>
                 <!--<div class="col-6 col-sm-4 col-md-3" ><a href="#" (onclick)="alert('Functionality still in dev. Try again later.')">Download CSV</a></div>-->
             </div>
-        
             <table class='table' id="reportheading">
                 <tbody>
                     <tr>
@@ -1341,11 +1340,19 @@ class WorkshopSurveyViews
 
 
     //MAKE CSV 
+    private function createCSVLinkFromGets(){
+
+        $baseURL = "make_csv.php?action=customReport";
+        
+        foreach ($this->wsModel->params as $key => $value) {
+            $baseURL .= "&{$key}={$value}";
+        }
+
+        return $baseURL;
+    }
 
     public function generate_csv(){
         $result = $this->wsModel->get_csv_report();
-
-        // look( $result );
 
         // look( $result['Avgs'][0] );
 

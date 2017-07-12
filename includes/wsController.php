@@ -49,10 +49,6 @@ class WorkshopSurveyController {
         //used for both the report page, and the make csv page 
 
         $params = array();
-
-        look( $this->login_user );
-        look( $this->isOutreachUser );
-        look( $this->isManager );
        
         if( $this->isOutreachUser && $this->isManager ){
             if( isset( $_GET['counselor'] ) && !empty( $_GET['counselor'] ) ){
@@ -103,8 +99,6 @@ class WorkshopSurveyController {
         if( isset( $_GET['block'] ) && !empty( $_GET['block'] ) ){
             $params['block'] = $_GET['block'];
         }
-
-        look( $params );
 
         $this->wsModel->sanitizeAndLoadParams( $params );
     }
