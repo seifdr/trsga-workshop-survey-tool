@@ -545,28 +545,32 @@ class WorkshopSurveyViews
         global $database;
 
         $result = $this->wsModel->get_past_attendance();
+
+        look( $result )
                 ?>
 
         <div class="table-responsive">
             <table class="table table-striped text-center">
                 <thead>
                     <tr>
-                        <th>Events</th>
-                        <th>Precentage</th>
-                        <th>Total</th>
+                        <th></th>
+                        <th>0</th>
+                        <th>1</th>
+                        <th>2</th>
+                        <th>3</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php 
 
-                        foreach ($result[0] as $key => $value) {
+                        // foreach ($result[0] as $key => $value) {
                         
-                            if (strpos($key, 'Count') !== false) {
-                               echo "<td>{$value}</td></tr>";
-                            } else {
-                                echo "<tr><td>{$key}</td><td>{$value}%</td>";
-                            }
-                        }
+                        //     if (strpos($key, 'Count') !== false) {
+                        //        echo "<td>{$value}</td></tr>";
+                        //     } else {
+                        //         echo "<tr><td>{$key}</td><td>{$value}%</td>";
+                        //     }
+                        // }
                     
                     ?>
                 </tbody>
@@ -1353,14 +1357,6 @@ class WorkshopSurveyViews
 
     public function generate_csv(){
         $result = $this->wsModel->get_csv_report();
-
-        // look( $result['Avgs'][0] );
-
-        // look( $result['Data'] );
-
-        // look( $result['Counts'] );
-
-        // look( count( $result['Data'] ) );
 
         $sql_explain = $this->sql_to_text();
 

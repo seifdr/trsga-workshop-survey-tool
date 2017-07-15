@@ -399,50 +399,34 @@ class WorkshopSurvey extends DatabaseObject
         global $database;
 
         $sql = " SELECT 
-                    ROUND( SUM( 
-                        IF( question2 LIKE '%1%', 1, 0 )
-                    ) / COUNT(*) * 100, 2 ) as 'First TRS Event',
-
-                    SUM( IF( question2 LIKE '%1%', 1, 0 ) ) as 'First TRS Event Count',
-
-                    ROUND( SUM( 
-                        IF( question2 LIKE '%2%', 1, 0 )
-                    ) / COUNT(*) * 100, 2 ) as 'One-on-one Couseling',
-
-                    SUM( IF( question2 LIKE '%2%', 1, 0 ) ) as 'One-on-one Couseling Count',
-
-
-                    ROUND( SUM( 
-                        IF( question2 LIKE '%3%', 1, 0 )
-                    ) / COUNT(*) * 100, 2 ) as 'Half-Day Seminar',
-                    
-                    SUM( IF( question2 LIKE '%3%', 1, 0 ) ) as 'Half-Day Seminar Count',
-                    
-                    ROUND( SUM( 
-                        IF( question2 LIKE '%4%', 1, 0 )
-                    ) / COUNT(*) * 100, 2 ) as 'Pre-Retirement Workshop',
-                    
-                    SUM( IF( question2 LIKE '%4%', 1, 0 ) ) as 'Pre-Retirement Workshop Count',
-                    
-                    ROUND( SUM( 
-                        IF( question2 LIKE '%5%', 1, 0 )
-                    ) / COUNT(*) * 100, 2 ) as 'Mid-Career Workshop',
-                    
-                    SUM( IF( question2 LIKE '%5%', 1, 0 ) ) as 'Mid-Career Workshop Count',
-                    
-                    ROUND( SUM( 
-                        IF( question2 LIKE '%6%', 1, 0 )
-                    ) / COUNT(*) * 100, 2 ) as 'New Hire Workshop',
-                    
-                    SUM( IF( question2 LIKE '%6%', 1, 0 ) ) as 'New Hire Workshop Count'
+    
+                    SUM( if( question2workshops = '', 1, 0 ) ) as 'WorkshopsNever',
+                    SUM( if( question2workshops = '1', 1, 0 ) ) as 'Workshops1Time',
+                    SUM( if( question2workshops = '2', 1, 0 ) )  as 'Workshops2Time',
+                    SUM( if( question2workshops = '3', 1, 0 ) ) as 'Workshops3Time',
+                    SUM( if( question2workshops != '', 1, 0 ) ) as 'WorkshopsTotal',
+                    SUM( if( question2counseling = '', 1, 0 ) ) as 'CounselingNever',
+                    SUM( if( question2counseling = '1', 1, 0 ) ) as 'Counseling1Time',
+                    SUM( if( question2counseling = '2', 1, 0 ) ) as 'Counseling2Time',
+                    SUM( if( question2counseling = '3', 1, 0 ) )  as 'Counseling3Time',
+                    SUM( if( question2counseling != '', 1, 0 ) )  as 'CounselingTotal',
+                    SUM( if( question2halfday = '', 1, 0 ) )   as 'HalfDayNever',
+                    SUM( if( question2halfday = '1', 1, 0 ) )  as 'HalfDay1Time',
+                    SUM( if( question2halfday = '2', 1, 0 ) )  as 'HalfDay2Time',
+                    SUM( if( question2halfday = '3', 1, 0 ) )  as 'HalfDay3Time',
+                    SUM( if( question2halfday != '', 1, 0 ) )  as 'HalfDayTotal'
                     
                     FROM ". static::$table_name ." AS ws ";
 
-                     $sql = $this->addWhereCatsToSql( $sql );
+                    $sql = $this->addWhereCatsToSql( $sql );
+
+                    $sql1 = " SELECT * FROM (". $sql .") as tb2 ";
+
+        echo $sql1;
 
         $result = array(); 
 
-        foreach ( $database->query( $sql ) as $row ) {
+        foreach ( $database->query( $sql1 ) as $row ) {
             array_push( $result, $row );
         }
 
