@@ -774,7 +774,9 @@ class WorkshopSurvey extends DatabaseObject
                         ws.question1d AS Overall ";
 
                         if( $csv ){ 
-                            $sqla .= ", ws.question2 AS Q2_PastAttend,
+                            $sqla .= ", ws.question2workshops AS Q2_PastAttendWorkshop,
+                            ws.question2counseling AS Q2_PastAttendCounseling,
+                            ws.question2halfday AS Q2_PastAttendHalfDay,
                             ws.question3a AS Q3_Eligibility,
                             ws.question3b AS Q3_Plans,
                             ws.question3c AS Q3_Beneficiary,
@@ -902,7 +904,7 @@ class WorkshopSurvey extends DatabaseObject
         $krResult       = $this->get_knowledge_useful();
         $stResult       = $this->get_survey_by_type();
 
-        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts, 'attResult' => $attresult[0], 'underResult' => $underResult[0], 'krResult' => $krResult[0], 'stResult' => $stResult[0] );
+       return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts, 'attResult' => $attresult[0], 'underResult' => $underResult[0], 'krResult' => $krResult[0], 'stResult' => $stResult[0] );
     }
 
     public function find_previous_six_months($formatted=false, $names=false){
