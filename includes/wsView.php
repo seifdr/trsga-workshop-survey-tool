@@ -884,7 +884,7 @@ class WorkshopSurveyViews
             </table>
         <?php
 
-            $attresult      = $this->wsModel->get_past_attendance();
+            $attresult      = $this->wsModel->get_past_attendance()[0];
 
             $underResult    = $this->wsModel->get_understandings();
 
@@ -898,13 +898,40 @@ class WorkshopSurveyViews
                     <div class="col col-sm-6">
                         <p><strong>Past Events Attended</strong></p>
                         <table>
-                            <tr><th>Event</th><th>Percentage</th><th>Total</th></tr>
-                            <tr><td>First TRS Event</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['First TRS Event Count'] ); ?></td></tr>
-                            <tr><td>One-on-one Couseling</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['One-on-one Couseling Count'] ); ?></td></tr>
-                            <tr><td>Half-Day Seminar</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Half-Day Seminar Count'] ); ?></td></tr>
-                            <tr><td>Pre-Retirement Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Pre-Retirement Workshop Count'] ); ?></td></tr>
-                            <tr><td>Mid-Career Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['Mid-Career Workshop Count'] ); ?></td></tr>
-                            <tr><td>New Hire Workshop</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop'] ); ?>%</td><td><?php echo htmlspecialchars( $attresult[0]['New Hire Workshop Count'] ); ?></td></tr>
+                            <tbody>
+                                <tr>
+                                    <th></th>
+                                    <th>0</th>
+                                    <th>1</th>
+                                    <th>2</th>
+                                    <th>3+</th>
+                                    <th>Tot</th>
+                                </tr>
+                                <tr>
+                                    <td>Workshop</td>
+                                    <td><?php $this->outputAttNums( $attresult['WorkshopsNeverPerc'], $attresult['WorkshopsNever'] ); ?></td>
+                                    <?php for ($i=1; $i < 4; $i++) { ?>
+                                        <td><?php $this->outputAttNums( $attresult['Workshops'. $i .'TimePerc'], $attresult['Workshops'. $i .'Time'] ); ?></td>
+                                    <?php } ?>
+                                    <td><?php echo htmlspecialchars( $attresult['WorkshopsTotal'] ); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Counseling</td>
+                                    <td><?php $this->outputAttNums( $attresult['CounselingNeverPerc'], $attresult['CounselingNever'] ); ?></td>
+                                    <?php for ($i=1; $i < 4; $i++) { ?>
+                                        <td><?php $this->outputAttNums( $attresult['Counseling'. $i .'TimePerc'], $attresult['Counseling'. $i .'Time'] ); ?></td>
+                                    <?php } ?>
+                                    <td><?php echo htmlspecialchars( $attresult['CounselingTotal'] ); ?></td>
+                                </tr>
+                                <tr>
+                                    <td>Half Day</td>
+                                    <td><?php $this->outputAttNums( $attresult['HalfDayNeverPerc'], $attresult['HalfDayNever'] ); ?></td>
+                                    <?php for ($i=1; $i < 4; $i++) { ?>
+                                        <td><?php $this->outputAttNums( $attresult['HalfDay'. $i .'TimePerc'], $attresult['HalfDay'. $i .'Time'] ); ?></td>
+                                    <?php } ?>
+                                    <td><?php echo htmlspecialchars( $attresult['HalfDayTotal'] ); ?></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                     <div class="col col-sm-6">
