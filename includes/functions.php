@@ -8,4 +8,9 @@ function look( $var ){
 
 }
 
+function _e( $input ){
+    // _e means trs escape
+    echo htmlspecialchars( $input );
+}
+
 ?>

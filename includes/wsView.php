@@ -541,13 +541,16 @@ class WorkshopSurveyViews
 
     }
 
+    private function outputAttNums( $percentage, $total = 0 ){
+        echo (float) htmlspecialchars( $percentage ) . "%<br />". htmlspecialchars( $total );
+    }
+
     public function past_attendance(){
         global $database;
 
-        $result = $this->wsModel->get_past_attendance();
+        $result = $this->wsModel->get_past_attendance()[0];
 
-        look( $result )
-                ?>
+        ?>
 
         <div class="table-responsive">
             <table class="table table-striped text-center">
@@ -555,24 +558,37 @@ class WorkshopSurveyViews
                     <tr>
                         <th></th>
                         <th>0</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
+                        <th>1 time</th>
+                        <th>2 times</th>
+                        <th>3+ times</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-
-                        // foreach ($result[0] as $key => $value) {
-                        
-                        //     if (strpos($key, 'Count') !== false) {
-                        //        echo "<td>{$value}</td></tr>";
-                        //     } else {
-                        //         echo "<tr><td>{$key}</td><td>{$value}%</td>";
-                        //     }
-                        // }
-                    
-                    ?>
+                    <tr>
+                        <td class="align-middle">Workshops</td>
+                        <td><?php $this->outputAttNums( $result['WorkshopsNeverPerc'], $result['WorkshopsNever'] ); ?>
+                        <?php for ($i=1; $i < 4; $i++) { ?>
+                            <td><?php $this->outputAttNums( $result['Workshops'. $i .'TimePerc'], $result['Workshops'. $i .'Time'] ); ?></td>
+                        <?php } ?>
+                        <td class="align-middle"><?php echo htmlspecialchars( $result['WorkshopsTotal'] ); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="align-middle">Counseling</td>
+                        <td><?php $this->outputAttNums( $result['CounselingNeverPerc'], $result['CounselingNever'] ); ?>
+                        <?php for ($i=1; $i < 4; $i++) { ?>
+                            <td><?php $this->outputAttNums( $result['Counseling'. $i .'TimePerc'], $result['Counseling'. $i .'Time'] ); ?></td>
+                        <?php } ?>
+                        <td class="align-middle"><?php echo htmlspecialchars( $result['CounselingTotal'] ); ?></td>
+                    </tr>
+                    <tr>
+                        <td class="align-middle">Half Day Seminar</td>
+                        <td><?php $this->outputAttNums( $result['HalfDayNeverPerc'], $result['HalfDayNever'] ); ?>
+                        <?php for ($i=1; $i < 4; $i++) { ?>
+                            <td><?php $this->outputAttNums( $result['HalfDay'. $i .'TimePerc'], $result['HalfDay'. $i .'Time'] ); ?></td>
+                        <?php } ?>
+                        <td class="align-middle"><?php _e( $result['HalfDayTotal'] ); ?></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

@@ -400,29 +400,75 @@ class WorkshopSurvey extends DatabaseObject
 
         $sql = " SELECT 
     
-                    SUM( if( question2workshops = '', 1, 0 ) ) as 'WorkshopsNever',
-                    SUM( if( question2workshops = '1', 1, 0 ) ) as 'Workshops1Time',
-                    SUM( if( question2workshops = '2', 1, 0 ) )  as 'Workshops2Time',
-                    SUM( if( question2workshops = '3', 1, 0 ) ) as 'Workshops3Time',
-                    SUM( if( question2workshops != '', 1, 0 ) ) as 'WorkshopsTotal',
-                    SUM( if( question2counseling = '', 1, 0 ) ) as 'CounselingNever',
-                    SUM( if( question2counseling = '1', 1, 0 ) ) as 'Counseling1Time',
-                    SUM( if( question2counseling = '2', 1, 0 ) ) as 'Counseling2Time',
-                    SUM( if( question2counseling = '3', 1, 0 ) )  as 'Counseling3Time',
-                    SUM( if( question2counseling != '', 1, 0 ) )  as 'CounselingTotal',
-                    SUM( if( question2halfday = '', 1, 0 ) )   as 'HalfDayNever',
-                    SUM( if( question2halfday = '1', 1, 0 ) )  as 'HalfDay1Time',
-                    SUM( if( question2halfday = '2', 1, 0 ) )  as 'HalfDay2Time',
-                    SUM( if( question2halfday = '3', 1, 0 ) )  as 'HalfDay3Time',
-                    SUM( if( question2halfday != '', 1, 0 ) )  as 'HalfDayTotal'
+                    SUM( if( question2workshops = '1', 1, 0 ) ) as 'WorkshopsNever',
+                    SUM( if( question2workshops = '2', 1, 0 ) ) as 'Workshops1Time',
+                    SUM( if( question2workshops = '3', 1, 0 ) )  as 'Workshops2Time',
+                    SUM( if( question2workshops = '4', 1, 0 ) ) as 'Workshops3Time',
+                    SUM( if( ( question2workshops != '' AND question2workshops != '1' ), 1, 0 ) ) as 'WorkshopsTotal',
+                    SUM( if( question2counseling = '1', 1, 0 ) ) as 'CounselingNever',
+                    SUM( if( question2counseling = '2', 1, 0 ) ) as 'Counseling1Time',
+                    SUM( if( question2counseling = '3', 1, 0 ) ) as 'Counseling2Time',
+                    SUM( if( question2counseling = '4', 1, 0 ) )  as 'Counseling3Time',
+                    SUM( if( ( question2counseling != '' AND question2counseling != '1' ) , 1, 0 ) )  as 'CounselingTotal',
+                    SUM( if( question2halfday = '1', 1, 0 ) )   as 'HalfDayNever',
+                    SUM( if( question2halfday = '2', 1, 0 ) )  as 'HalfDay1Time',
+                    SUM( if( question2halfday = '3', 1, 0 ) )  as 'HalfDay2Time',
+                    SUM( if( question2halfday = '4', 1, 0 ) )  as 'HalfDay3Time',
+                    SUM( if( ( question2halfday != '' AND question2halfday != '1' ) , 1, 0 ) )  as 'HalfDayTotal',
+                    COUNT(*) as TotalCount
                     
                     FROM ". static::$table_name ." AS ws ";
 
                     $sql = $this->addWhereCatsToSql( $sql );
 
-                    $sql1 = " SELECT * FROM (". $sql .") as tb2 ";
+                    $sql1 = " SELECT 
+                    
+                    WorkshopsNever,
+                    if( WorkshopsNever != 0, ROUND( ( ( WorkshopsNever / TotalCount ) * 100 ), 2 ) , 0 ) as WorkshopsNeverPerc,
+                    
+                    Workshops1Time,
+                    if( Workshops1Time != 0, ROUND( ( (  Workshops1Time / TotalCount ) * 100 ), 2 ) , 0 ) as Workshops1TimePerc,
 
-        echo $sql1;
+                    Workshops2Time,
+                    if( Workshops2Time != 0, ROUND( ( ( Workshops2Time / TotalCount ) * 100 ), 2 ) , 0 ) as Workshops2TimePerc,
+
+                    Workshops3Time,
+                    if( Workshops3Time != 0, ROUND( ( ( Workshops3Time / TotalCount ) * 100 ), 2 ) , 0 ) as Workshops3TimePerc,
+
+                    WorkshopsTotal,
+
+
+                    CounselingNever,
+                    if( CounselingNever != 0, ROUND( ( ( CounselingNever / TotalCount ) * 100 ), 2 ) , 0 ) as CounselingNeverPerc,
+                    
+                    Counseling1Time,
+                    if( Counseling1Time != 0, ROUND( ( (  Counseling1Time / TotalCount ) * 100 ), 2 ) , 0 ) as Counseling1TimePerc,
+
+                    Counseling2Time,
+                    if( Counseling2Time != 0, ROUND( ( ( Counseling2Time / TotalCount ) * 100 ), 2 ) , 0 ) as Counseling2TimePerc,
+
+                    Counseling3Time,
+                    if( Counseling3Time != 0, ROUND( ( ( Counseling3Time / TotalCount ) * 100 ), 2 ) , 0 ) as Counseling3TimePerc,
+
+                    CounselingTotal,
+
+                    HalfDayNever,
+                    if( HalfDayNever != 0, ROUND( ( ( HalfDayNever / TotalCount ) * 100 ), 2 ) , 0 ) as HalfDayNeverPerc,
+                    
+                    HalfDay1Time,
+                    if( HalfDay1Time != 0, ROUND( ( (  HalfDay1Time / TotalCount ) * 100 ), 2 ) , 0 ) as HalfDay1TimePerc,
+
+                    HalfDay2Time,
+                    if( HalfDay2Time != 0, ROUND( ( ( HalfDay2Time / TotalCount ) * 100 ), 2 ) , 0 ) as HalfDay2TimePerc,
+
+                    HalfDay3Time,
+                    if( HalfDay3Time != 0, ROUND( ( ( HalfDay3Time / TotalCount ) * 100 ), 2 ) , 0 ) as HalfDay3TimePerc,
+
+                    HalfDayTotal,
+
+                    TotalCount
+
+                    FROM (". $sql .") as tb2 ";
 
         $result = array(); 
 
