@@ -1391,13 +1391,13 @@ class WorkshopSurveyViews
 
     private function outputNumberAttended( $input ){
         if( $input == '' || $input == '1'){
-            return "0x";
+            return "0";
         } elseif ( $input == '2'){
-            return "1x";
+            return "1";
         } elseif ( $input == '3'){
-            return "2x";
+            return "2";
         } elseif ( $input == '4'){
-            return "3+x";
+            return "3+";
         }
     }
 
@@ -1435,7 +1435,6 @@ class WorkshopSurveyViews
 			fputcsv($output, array('Total Fails: ', $result['Counts']['Fails'], ' ', 'Count of 4\'s: ', $result['Counts']['all4s'], ' ', 'Average Survey Score: ', $result['Counts']['avgScore'] ));
 			fputcsv($output, array(' ', ' ', ' ', 'Count of 4\'s and 5\'s: ', $result['Counts']['all45s'], ' ', ' ', ' ' ));
 
-
             $legend = array(
                 'N/A',
                 'Not sure',
@@ -1445,17 +1444,12 @@ class WorkshopSurveyViews
             );
   
             fputcsv($output, array(' '));
-            fputcsv($output, array('Past Events Attended', '', '', '', 'Understanding Of The Following Topics', '','','', 'Knowledge and Skills gained will be useful', '', '', 'Workshop Survey Reponses By Type'));
-            fputcsv($output, array('Events', 'Percentage', 'Total', '', 'Topics', 'Avg Value', 'Avg Report', '', '', '' ));
-            fputcsv($output, array(' '));
-
-            fputcsv($output, array('', '0', '1 time', '2 times', '3+ times', 'Totals'));
-            fputcsv($output, array('Workshop', $this->outputAttNums( $attresult['HalfDayNeverPerc'], $attresult['HalfDayNever'], FALSE ), $this->outputAttNums( $attresult['Workshops1TimePerc'], $attresult['Workshops1Time'], FALSE ), $this->outputAttNums( $attresult['Workshops2TimePerc'], $attresult['Workshops2Time'], FALSE ), $this->outputAttNums( $attresult['Workshops3TimePerc'], $attresult['Workshops3Time'], FALSE ), htmlspecialchars( $attresult['WorkshopsTotal'], FALSE ) ) );
-
-            fputcsv($output, array('Counseling', $this->outputAttNums( $attresult['CounselingNeverPerc'], $attresult['CounselingNever'], FALSE ), $this->outputAttNums( $attresult['Counseling1TimePerc'], $attresult['Counseling1Time'], FALSE ), $this->outputAttNums( $attresult['Counseling2TimePerc'], $attresult['Counseling2Time'], FALSE ), $this->outputAttNums( $attresult['Counseling3TimePerc'], $attresult['Counseling3Time'], FALSE ), htmlspecialchars( $attresult['CounselingTotal'], FALSE ) ) );
-            
-            fputcsv($output, array('Half Day', $this->outputAttNums( $attresult['HalfDayNeverPerc'], $attresult['HalfDayNever'], FALSE ), $this->outputAttNums( $attresult['HalfDay1TimePerc'], $attresult['HalfDay1Time'], FALSE ), $this->outputAttNums( $attresult['HalfDay2TimePerc'], $attresult['HalfDay2Time'], FALSE ), $this->outputAttNums( $attresult['HalfDay3TimePerc'], $attresult['HalfDay3Time'], FALSE ), htmlspecialchars( $attresult['HalfDayTotal'], FALSE ) ) );
-            
+            fputcsv($output, array('Past Events Attended', '', '', '', '', '', '',                      'Understanding Of The Following Topics', '','','', 'Knowledge and Skills gained will be useful', '', '', 'Workshop Survey Reponses By Type'));
+            fputcsv($output, array('', '0', '1 time', '2 times', '3+ times', 'Totals', '',              'Topics', 'Avg Value', 'Avg Report', '', '', '' ));
+            fputcsv($output, array('Workshop', $this->outputAttNums( $attresult['HalfDayNeverPerc'], $attresult['HalfDayNever'], FALSE ), $this->outputAttNums( $attresult['Workshops1TimePerc'], $attresult['Workshops1Time'], FALSE ), $this->outputAttNums( $attresult['Workshops2TimePerc'], $attresult['Workshops2Time'], FALSE ), $this->outputAttNums( $attresult['Workshops3TimePerc'], $attresult['Workshops3Time'], FALSE ), htmlspecialchars( $attresult['WorkshopsTotal'], FALSE ), '',                               'Eligibility Requirements', $result['underResult']['Eligibility Requirements'], $legend[ round( $result['underResult']['Eligibility Requirements'] ) ]             ,'', 'Yes', $result['krResult']['Yes'], '', 'Half-Day Seminar', $result['stResult']['Half-Day Seminar'] ) );
+            fputcsv($output, array('Counseling', $this->outputAttNums( $attresult['CounselingNeverPerc'], $attresult['CounselingNever'], FALSE ), $this->outputAttNums( $attresult['Counseling1TimePerc'], $attresult['Counseling1Time'], FALSE ), $this->outputAttNums( $attresult['Counseling2TimePerc'], $attresult['Counseling2Time'], FALSE ), $this->outputAttNums( $attresult['Counseling3TimePerc'], $attresult['Counseling3Time'], FALSE ), htmlspecialchars( $attresult['CounselingTotal'], FALSE ),'',                 'Plans of Retiremnet/Options', $result['underResult']['Plans of Retiremnet/Options'], $legend[ round( $result['underResult']['Plans of Retiremnet/Options'] ) ]    ,'', 'No', $result['krResult']['No'],   '', 'Pre-Retirement Workshop', $result['stResult']['Pre-Retirement Workshop'] ) );
+            fputcsv($output, array('Half Day', $this->outputAttNums( $attresult['HalfDayNeverPerc'], $attresult['HalfDayNever'], FALSE ), $this->outputAttNums( $attresult['HalfDay1TimePerc'], $attresult['HalfDay1Time'], FALSE ), $this->outputAttNums( $attresult['HalfDay2TimePerc'], $attresult['HalfDay2Time'], FALSE ), $this->outputAttNums( $attresult['HalfDay3TimePerc'], $attresult['HalfDay3Time'], FALSE ), htmlspecialchars( $attresult['HalfDayTotal'], FALSE ),'',                                              'Beneficiary Information', $result['underResult']['Beneficiary Information'] , $legend[ round( $result['underResult']['Beneficiary Information'] ) ]               ,'',   '','',                           '', 'Mid-Career Workshop', $result['stResult']['Mid-Career Workshop'] ) );
+            fputcsv($output, array('','','','','','','','Service Credit', $result['underResult']['Service Credit'], $legend[ round( $result['underResult']['Service Credit'] ) ]                                           ,'',   '','',                           '', 'New Hire Workshop', $result['stResult']['New Hire Workshop']  ) );
             fputcsv($output, array(' '));
 
             fputcsv($output, array('SurveryID',  'Event Date',  'Location', 'Counselor', 'Pass or Fail', 'The presenter was knowledgable', 'The presenter has an effective presentation style.', 'The workshop content was organized and easy to follow', 'Please rate the workshop overall', 
@@ -1468,9 +1462,7 @@ class WorkshopSurveyViews
             'Eligility Requirements', 'Plans of Retirement/Options', 'Beneficiary Information', 'Service Credit', 'The knowledge and skills I gained from this group counseling will be usefull when applying for retirement.', 'What other topics would you like us to cover in future workshops?', 'Please tell us what you found most valuable about this workshop?'        ));
 
             foreach ($result['Data'] as $row ) {
-
                 $passOrFail = ( $row['Failed'] == 0 )? 'Pass' : 'Fail';
-                // $question2  = $this->explodeEventsAttended( $row['Q2_PastAttend'] );
                 fputcsv($output, array( $row['id'], $row['Date'], $row['location'], $row['Counselor'], $passOrFail, $row['Knowledgable'], $row['Effective'], $row['Organized'], $row['Overall'], $this->outputNumberAttended( $row[ 'Q2_PastAttendWorkshop' ] ), $this->outputNumberAttended ($row[ 'Q2_PastAttendCounseling' ] ), $this->outputNumberAttended( $row[ 'Q2_PastAttendHalfDay' ] ), $row['Q3_Eligibility'], $row['Q3_Plans'], $row['Q3_Beneficiary'], $row['Q3_Service_Credit'], $row['Q4_Useful'], $row['Q5_OtherTopics'], $row['Q6_MostValuable'] ));
             }
 

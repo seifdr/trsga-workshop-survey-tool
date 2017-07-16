@@ -894,7 +894,7 @@ class WorkshopSurvey extends DatabaseObject
 
     // get data for CSV
     public function get_csv_report(){
-                           //survey_report( $avgs = FALSE, $singleSurvey = FALSE, $csv = FALSE ){
+        //survey_report( $avgs = FALSE, $singleSurvey = FALSE, $csv = FALSE ){
         $avgsData   = $this->survey_report( TRUE, FALSE, TRUE );
         $data       = $this->survey_report( FALSE, FALSE, TRUE );
         $counts     = $this->get_survey_report_header_numbers();
@@ -903,7 +903,7 @@ class WorkshopSurvey extends DatabaseObject
         $underResult    = $this->get_understandings();
         $krResult       = $this->get_knowledge_useful();
         $stResult       = $this->get_survey_by_type();
-
+        
        return array( 'Avgs' => $avgsData, 'Data' => $data, 'Counts' => $counts, 'attResult' => $attresult[0], 'underResult' => $underResult[0], 'krResult' => $krResult[0], 'stResult' => $stResult[0] );
     }
 
